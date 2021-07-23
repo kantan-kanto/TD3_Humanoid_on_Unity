@@ -1,0 +1,39 @@
+jdict = motor_name
+'abdomen_z': <robot_bases.Joint object at 0x7f308fd74790>, 
+'abdomen_y': <robot_bases.Joint object at 0x7f308fd748d0>, 
+'abdomen_x': <robot_bases.Joint object at 0x7f308fd74ad0>, 
+'right_hip_x': <robot_bases.Joint object at 0x7f308fd74cd0>, 
+'right_hip_z': <robot_bases.Joint object at 0x7f308fd74e10>, 
+'right_hip_y': <robot_bases.Joint object at 0x7f308fd74f90>, 
+'right_knee': <robot_bases.Joint object at 0x7f308fd7d1d0>, 
+'left_hip_x': <robot_bases.Joint object at 0x7f308fd7d490>, 
+'left_hip_z': <robot_bases.Joint object at 0x7f308fd7d5d0>, 
+'left_hip_y': <robot_bases.Joint object at 0x7f308fd7d6d0>, 
+'left_knee': <robot_bases.Joint object at 0x7f308fd7d8d0>, 
+'right_shoulder1': <robot_bases.Joint object at 0x7f308fd7db90>, 
+'right_shoulder2': <robot_bases.Joint object at 0x7f308fd7dcd0>, 
+'right_elbow': <robot_bases.Joint object at 0x7f308fd7ded0>, 
+'left_shoulder1': <robot_bases.Joint object at 0x7f308fd83110>, 
+'left_shoulder2': <robot_bases.Joint object at 0x7f308fd83250>, 
+'left_elbow': <robot_bases.Joint object at 0x7f308fd83450>
+
+
+ordered_joints
+[<robot_bases.Joint object at 0x7fdb5159b450>,
+<robot_bases.Joint object at 0x7fdb5159ba10>,
+<robot_bases.Joint object at 0x7fdb5159bc10>,
+<robot_bases.Joint object at 0x7fdb5159be10>,
+<robot_bases.Joint object at 0x7fdb5159bf50>,
+<robot_bases.Joint object at 0x7fdb515a4110>,
+<robot_bases.Joint object at 0x7fdb515a4310>, 
+<robot_bases.Joint object at 0x7fdb515a45d0>, 
+<robot_bases.Joint object at 0x7fdb515a4710>, 
+<robot_bases.Joint object at 0x7fdb515a4810>, 
+<robot_bases.Joint object at 0x7fdb515a4a10>, 
+<robot_bases.Joint object at 0x7fdb515a4cd0>, 
+<robot_bases.Joint object at 0x7fdb515a4e10>, 
+<robot_bases.Joint object at 0x7fdb515aa050>, 
+<robot_bases.Joint object at 0x7fdb515aa250>, 
+<robot_bases.Joint object at 0x7fdb515aa390>, 
+<robot_bases.Joint object at 0x7fdb515aa590>]
+
