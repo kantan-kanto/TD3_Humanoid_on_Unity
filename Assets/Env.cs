@@ -9,375 +9,47 @@ using UnityEngine.Serialization;
 
 public class Env : MonoBehaviour
 {
-    public GameObject _HumanoidModel;
-    public GameObject Ref;
-    public GameObject Torso1;
-    public GameObject Head;
-    public GameObject Uwaist;
-    public GameObject Lwaist;
-    public GameObject Butt;
-    public GameObject RightThigh1;
-    public GameObject RightShin1;
-    public GameObject RightFoot;
-    public GameObject LeftThigh1;
-    public GameObject LeftShin1;
-    public GameObject LeftFoot;
-    public GameObject RightUarm1;
-    public GameObject RightLarm;
-    public GameObject RightHand;
-    public GameObject LeftUarm1;
-    public GameObject LeftLarm;
-    public GameObject LeftHand;
-    // public GameObject Xxx01;
-    // public GameObject Xxx02;
-    // public GameObject Xxx03;
-
-
-    //Rigidbody RefRB;
-    Rigidbody RefRB;
-    Rigidbody Torso1RB;
-    Rigidbody HeadRB;
-    Rigidbody UwaistRB;
-    Rigidbody LwaistRB;
-    Rigidbody ButtRB;
-    Rigidbody RightThigh1RB;
-    Rigidbody RightShin1RB;
-    Rigidbody RightFootRB;
-    Rigidbody LeftThigh1RB;
-    Rigidbody LeftShin1RB;
-    Rigidbody LeftFootRB;
-    Rigidbody RightUarm1RB;
-    Rigidbody RightLarmRB;
-    Rigidbody RightHandRB;
-    Rigidbody LeftUarm1RB;
-    Rigidbody LeftLarmRB;
-    Rigidbody LeftHandRB;
-    // Rigidbody Xxx01RB;
-    // Rigidbody Xxx02RB;
-    // Rigidbody Xxx03RB;
-
-    public GameObject Floor;
-    Rigidbody FloorRB;
-
-    float Ref_x;
-    float Torso1_x;
-    float Head_x;
-    float Uwaist_x;
-    float Lwaist_x;
-    float Butt_x;
-    float RightThigh1_x;
-    float RightShin1_x;
-    float RightFoot_x;
-    float LeftThigh1_x;
-    float LeftShin1_x;
-    float LeftFoot_x;
-    float RightUarm1_x;
-    float RightLarm_x;
-    float RightHand_x;
-    float LeftUarm1_x;
-    float LeftLarm_x;
-    float LeftHand_x;
-    // float Xxx01_x;
-    // float Xxx02_x;
-    // float Xxx03_x;
-    float Ref_rx;
-    float Torso1_rx;
-    float Head_rx;
-    float Uwaist_rx;
-    float Lwaist_rx;
-    float Butt_rx;
-    float RightThigh1_rx;
-    float RightShin1_rx;
-    float RightFoot_rx;
-    float LeftThigh1_rx;
-    float LeftShin1_rx;
-    float LeftFoot_rx;
-    float RightUarm1_rx;
-    float RightLarm_rx;
-    float RightHand_rx;
-    float LeftUarm1_rx;
-    float LeftLarm_rx;
-    float LeftHand_rx;
-    // float Xxx01_rx;
-    // float Xxx02_rx;
-    // float Xxx03_rx;
-    float Ref_y;
-    float Torso1_y;
-    float Head_y;
-    float Uwaist_y;
-    float Lwaist_y;
-    float Butt_y;
-    float RightThigh1_y;
-    float RightShin1_y;
-    float RightFoot_y;
-    float LeftThigh1_y;
-    float LeftShin1_y;
-    float LeftFoot_y;
-    float RightUarm1_y;
-    float RightLarm_y;
-    float RightHand_y;
-    float LeftUarm1_y;
-    float LeftLarm_y;
-    float LeftHand_y;
-    // float Xxx01_y;
-    // float Xxx02_y;
-    // float Xxx03_y;
-    float Ref_ry;
-    float Torso1_ry;
-    float Head_ry;
-    float Uwaist_ry;
-    float Lwaist_ry;
-    float Butt_ry;
-    float RightThigh1_ry;
-    float RightShin1_ry;
-    float RightFoot_ry;
-    float LeftThigh1_ry;
-    float LeftShin1_ry;
-    float LeftFoot_ry;
-    float RightUarm1_ry;
-    float RightLarm_ry;
-    float RightHand_ry;
-    float LeftUarm1_ry;
-    float LeftLarm_ry;
-    float LeftHand_ry;
-    // float Xxx01_ry;
-    // float Xxx02_ry;
-    // float Xxx03_ry;
-    float Ref_z;
-    float Torso1_z;
-    float Head_z;
-    float Uwaist_z;
-    float Lwaist_z;
-    float Butt_z;
-    float RightThigh1_z;
-    float RightShin1_z;
-    float RightFoot_z;
-    float LeftThigh1_z;
-    float LeftShin1_z;
-    float LeftFoot_z;
-    float RightUarm1_z;
-    float RightLarm_z;
-    float RightHand_z;
-    float LeftUarm1_z;
-    float LeftLarm_z;
-    float LeftHand_z;
-    // float Xxx01_z;
-    // float Xxx02_z;
-    // float Xxx03_z;
-    float Ref_rz;
-    float Torso1_rz;
-    float Head_rz;
-    float Uwaist_rz;
-    float Lwaist_rz;
-    float Butt_rz;
-    float RightThigh1_rz;
-    float RightShin1_rz;
-    float RightFoot_rz;
-    float LeftThigh1_rz;
-    float LeftShin1_rz;
-    float LeftFoot_rz;
-    float RightUarm1_rz;
-    float RightLarm_rz;
-    float RightHand_rz;
-    float LeftUarm1_rz;
-    float LeftLarm_rz;
-    float LeftHand_rz;
-    // float Xxx01_rz;
-    // float Xxx02_rz;
-    // float Xxx03_rz;
-    float RefRB_x;
-    float Torso1RB_x;
-    float HeadRB_x;
-    float UwaistRB_x;
-    float LwaistRB_x;
-    float ButtRB_x;
-    float RightThigh1RB_x;
-    float RightShin1RB_x;
-    float RightFootRB_x;
-    float LeftThigh1RB_x;
-    float LeftShin1RB_x;
-    float LeftFootRB_x;
-    float RightUarm1RB_x;
-    float RightLarmRB_x;
-    float RightHandRB_x;
-    float LeftUarm1RB_x;
-    float LeftLarmRB_x;
-    float LeftHandRB_x;
-    // float Xxx01RB_x;
-    // float Xxx02RB_x;
-    // float Xxx03RB_x;
-    float RefRB_rx;
-    float Torso1RB_rx;
-    float HeadRB_rx;
-    float UwaistRB_rx;
-    float LwaistRB_rx;
-    float ButtRB_rx;
-    float RightThigh1RB_rx;
-    float RightShin1RB_rx;
-    float RightFootRB_rx;
-    float LeftThigh1RB_rx;
-    float LeftShin1RB_rx;
-    float LeftFootRB_rx;
-    float RightUarm1RB_rx;
-    float RightLarmRB_rx;
-    float RightHandRB_rx;
-    float LeftUarm1RB_rx;
-    float LeftLarmRB_rx;
-    float LeftHandRB_rx;
-    // float Xxx01RB_rx;
-    // float Xxx02RB_rx;
-    // float Xxx03RB_rx;
-    float RefRB_y;
-    float Torso1RB_y;
-    float HeadRB_y;
-    float UwaistRB_y;
-    float LwaistRB_y;
-    float ButtRB_y;
-    float RightThigh1RB_y;
-    float RightShin1RB_y;
-    float RightFootRB_y;
-    float LeftThigh1RB_y;
-    float LeftShin1RB_y;
-    float LeftFootRB_y;
-    float RightUarm1RB_y;
-    float RightLarmRB_y;
-    float RightHandRB_y;
-    float LeftUarm1RB_y;
-    float LeftLarmRB_y;
-    float LeftHandRB_y;
-    // float Xxx01RB_y;
-    // float Xxx02RB_y;
-    // float Xxx03RB_y;
-    float RefRB_ry;
-    float Torso1RB_ry;
-    float HeadRB_ry;
-    float UwaistRB_ry;
-    float LwaistRB_ry;
-    float ButtRB_ry;
-    float RightThigh1RB_ry;
-    float RightShin1RB_ry;
-    float RightFootRB_ry;
-    float LeftThigh1RB_ry;
-    float LeftShin1RB_ry;
-    float LeftFootRB_ry;
-    float RightUarm1RB_ry;
-    float RightLarmRB_ry;
-    float RightHandRB_ry;
-    float LeftUarm1RB_ry;
-    float LeftLarmRB_ry;
-    float LeftHandRB_ry;
-    // float Xxx01RB_ry;
-    // float Xxx02RB_ry;
-    // float Xxx03RB_ry;
-    float RefRB_z;
-    float Torso1RB_z;
-    float HeadRB_z;
-    float UwaistRB_z;
-    float LwaistRB_z;
-    float ButtRB_z;
-    float RightThigh1RB_z;
-    float RightShin1RB_z;
-    float RightFootRB_z;
-    float LeftThigh1RB_z;
-    float LeftShin1RB_z;
-    float LeftFootRB_z;
-    float RightUarm1RB_z;
-    float RightLarmRB_z;
-    float RightHandRB_z;
-    float LeftUarm1RB_z;
-    float LeftLarmRB_z;
-    float LeftHandRB_z;
-    // float Xxx01RB_z;
-    // float Xxx02RB_z;
-    // float Xxx03RB_z;
-    float RefRB_rz;
-    float Torso1RB_rz;
-    float HeadRB_rz;
-    float UwaistRB_rz;
-    float LwaistRB_rz;
-    float ButtRB_rz;
-    float RightThigh1RB_rz;
-    float RightShin1RB_rz;
-    float RightFootRB_rz;
-    float LeftThigh1RB_rz;
-    float LeftShin1RB_rz;
-    float LeftFootRB_rz;
-    float RightUarm1RB_rz;
-    float RightLarmRB_rz;
-    float RightHandRB_rz;
-    float LeftUarm1RB_rz;
-    float LeftLarmRB_rz;
-    float LeftHandRB_rz;
-    // float Xxx01RB_rz;
-    // float Xxx02RB_rz;
-    // float Xxx03RB_rz;
-
-    HingeJoint[] Lwaist_Joint;
-    HingeJoint[] Butt_Joint;
-    HingeJoint[] RightThigh1_Joint;
-    HingeJoint[] RightShin1_Joint;
-    HingeJoint[] LeftThigh1_Joint;
-    HingeJoint[] LeftShin1_Joint;
-    HingeJoint[] RightUarm1_Joint;
-    HingeJoint[] RightLarm_Joint;
-    HingeJoint[] LeftUarm1_Joint;
-    HingeJoint[] LeftLarm_Joint;
-
-    float Lwaist_Joint0_r;
-    float Lwaist_Joint1_r;    
-    float Butt_Joint0_r;
-    float RightThigh1_Joint0_r;
-    float RightThigh1_Joint1_r;
-    float RightThigh1_Joint2_r;    
-    float RightShin1_Joint0_r;
-    float LeftThigh1_Joint0_r;
-    float LeftThigh1_Joint1_r;
-    float LeftThigh1_Joint2_r;
-    float LeftShin1_Joint0_r;
-    float RightUarm1_Joint0_r;
-    float RightUarm1_Joint1_r;
-    float RightLarm_Joint0_r;
-    float LeftUarm1_Joint0_r;
-    float LeftUarm1_Joint1_r;
-    float LeftLarm_Joint0_r;
+    public GameObject HumanoidModel;
     
-    float Lwaist_Joint0_v;
-    float Lwaist_Joint1_v;    
-    float Butt_Joint0_v;
-    float RightThigh1_Joint0_v;
-    float RightThigh1_Joint1_v;
-    float RightThigh1_Joint2_v;    
-    float RightShin1_Joint0_v;
-    float LeftThigh1_Joint0_v;
-    float LeftThigh1_Joint1_v;
-    float LeftThigh1_Joint2_v;
-    float LeftShin1_Joint0_v;
-    float RightUarm1_Joint0_v;
-    float RightUarm1_Joint1_v;
-    float RightLarm_Joint0_v;
-    float LeftUarm1_Joint0_v;
-    float LeftUarm1_Joint1_v;
-    float LeftLarm_Joint0_v;
+    const int num_objects = 17;
+    const int num_joints = 17;
+    const int dim_states = 8 + num_joints*2 + 2;
+    const int dim_actions = num_joints;
 
-    float Reward;
+    GameObject[] game_objects = new GameObject[num_objects];
+    Rigidbody[] rigid_bodies = new Rigidbody[num_objects];
+    float[] game_objects_x = new float[num_objects];
+    float[] game_objects_y = new float[num_objects];
+    float[] game_objects_z = new float[num_objects];
+    float[] game_objects_rx = new float[num_objects];
+    float[] game_objects_ry = new float[num_objects];
+    float[] game_objects_rz = new float[num_objects];
+    float[] rigid_bodies_vx = new float[num_objects];
+    float[] rigid_bodies_vy = new float[num_objects];
+    float[] rigid_bodies_vz = new float[num_objects];
+    float[] rigid_bodies_wx = new float[num_objects];
+    float[] rigid_bodies_wy = new float[num_objects];
+    float[] rigid_bodies_wz = new float[num_objects];
+   
+
+    float[] joint_position = new float[num_joints];    
+    float[] joint_velocity = new float[num_joints];
+    HingeJoint[] indexed_joints = new HingeJoint[num_joints];
+
+    float reward;
     float done;
-    float Step;
-    private bool initial_flag;
-    public bool stop_flag;
-    private int i;
-  
-    // float multiplier;
+    float step;
     float countdown;
-    float target;
 
-    float[] parts_data = new float[254];
-    float[] init_parts_data = new float[254];
-    float[] joints_data = new float[254];
-    float[] init_joints_data = new float[254];
-    float[] diff_joints_data = new float[254];
-    float[] data_Out = new float[44];
-    float[] vectorAction = new float[17];
+    float[] parts_data = new float[num_objects*12];
+    float[] init_parts_data = new float[num_objects*12];
+    float[] joints_data = new float[num_joints*2];
+    float[] init_joints_data = new float[num_joints*2];
+    float[] diff_joints_data = new float[num_joints*2];
+    float[] data_Out = new float[dim_states+2];
+    float[] actions = new float[dim_actions];
 
+    public bool stop_flag;
     public string ip = "127.0.0.1";
     public int port = 60000;
     private Socket client;
@@ -421,91 +93,77 @@ public class Env : MonoBehaviour
 
     void Start () 
     {
-        Ref = 
-            _HumanoidModel.transform.Find( "root" ).gameObject;
-        Torso1 = 
-            Ref.transform.Find( "torso1" ).gameObject;
-        Head = 
-            Torso1.transform.Find( "head" ).gameObject;
-        Uwaist = 
-            Torso1.transform.Find( "uwaist" ).gameObject;
-        Lwaist = 
-            Uwaist.transform.Find( "lwaist" ).gameObject;
-        Butt = 
-            Lwaist.gameObject.transform.Find( "butt" ).gameObject;
-        RightThigh1 = 
-            Butt.transform.Find( "right_thigh1" ).gameObject;
-        RightShin1 = 
-            RightThigh1.transform.Find( "right_shin1" ).gameObject;
-        RightFoot = 
-            RightShin1.transform.Find( "right_foot" ).gameObject;
-        LeftThigh1 = 
-            Butt.transform.Find( "left_thigh1" ).gameObject;
-        LeftShin1 = 
-            LeftThigh1.transform.Find( "left_shin1" ).gameObject;
-        LeftFoot = 
-            LeftShin1.transform.Find( "left_foot" ).gameObject;
-        RightUarm1 = 
-            Torso1.transform.Find( "right_uarm1" ).gameObject;
-        RightLarm = 
-            RightUarm1.transform.Find( "right_larm" ).gameObject;
-        RightHand = 
-            RightLarm.transform.Find( "right_hand" ).gameObject;
-        LeftUarm1 = 
-            Torso1.transform.Find( "left_uarm1" ).gameObject;
-        LeftLarm = 
-            LeftUarm1.transform.Find( "left_larm" ).gameObject;
-        LeftHand = 
-            LeftLarm.transform.Find( "left_hand" ).gameObject;
-        // Xxx01 = 
-        //     LeftHand.transform.Find( "Right_Knee_Joint_01" ).gameObject;
-        // Xxx02 = 
-        //     Xxx01.transform.Find( "Right_Ankle_Joint_01" ).gameObject;
-        // Xxx03 = 
-        //     Xxx02.transform.Find( "Right_Toe_Joint_01" ).gameObject;
+        game_objects[0] = HumanoidModel.transform.Find( "torso1" ).gameObject;
+        game_objects[1] = HumanoidModel.transform.Find( "head" ).gameObject;
+        game_objects[2] = HumanoidModel.transform.Find( "uwaist" ).gameObject;
+        game_objects[3] = HumanoidModel.transform.Find( "lwaist" ).gameObject;
+        game_objects[4] = HumanoidModel.transform.Find( "butt" ).gameObject;
+        game_objects[5] = HumanoidModel.transform.Find( "right_thigh1" ).gameObject;
+        game_objects[6] = HumanoidModel.transform.Find( "right_shin1" ).gameObject;
+        game_objects[7] = HumanoidModel.transform.Find( "right_foot" ).gameObject;
+        game_objects[8] = HumanoidModel.transform.Find( "left_thigh1" ).gameObject;
+        game_objects[9] = HumanoidModel.transform.Find( "left_shin1" ).gameObject;
+        game_objects[10] = HumanoidModel.transform.Find( "left_foot" ).gameObject;
+        game_objects[11] = HumanoidModel.transform.Find( "right_uarm1" ).gameObject;
+        game_objects[12] = HumanoidModel.transform.Find( "right_larm" ).gameObject;
+        game_objects[13] = HumanoidModel.transform.Find( "right_hand" ).gameObject;
+        game_objects[14] = HumanoidModel.transform.Find( "left_uarm1" ).gameObject;
+        game_objects[15] = HumanoidModel.transform.Find( "left_larm" ).gameObject;
+        game_objects[16] = HumanoidModel.transform.Find( "left_hand" ).gameObject;
 
-        FloorRB = Floor.GetComponent<Rigidbody>();
-        // RefRB = Ref.GetComponent<Rigidbody>();
-        Torso1RB = Torso1.GetComponent<Rigidbody>();
-        HeadRB = Head.GetComponent<Rigidbody>();
-        UwaistRB = Uwaist.GetComponent<Rigidbody>();
-        LwaistRB = Lwaist.GetComponent<Rigidbody>();
-        ButtRB = Butt.GetComponent<Rigidbody>();
-        RightThigh1RB = RightThigh1.GetComponent<Rigidbody>();
-        RightShin1RB = RightShin1.GetComponent<Rigidbody>();
-        RightFootRB = RightFoot.GetComponent<Rigidbody>();
-        LeftThigh1RB = LeftThigh1.GetComponent<Rigidbody>();
-        LeftShin1RB = LeftShin1.GetComponent<Rigidbody>();
-        LeftFootRB = LeftFoot.GetComponent<Rigidbody>();
-        RightUarm1RB = RightUarm1.GetComponent<Rigidbody>();
-        RightLarmRB = RightLarm.GetComponent<Rigidbody>();
-        RightHandRB = RightHand.GetComponent<Rigidbody>();
-        LeftUarm1RB = LeftUarm1.GetComponent<Rigidbody>();
-        LeftLarmRB = LeftLarm.GetComponent<Rigidbody>();
-        LeftHandRB = LeftHand.GetComponent<Rigidbody>();
-        // Xxx01RB = Xxx01.GetComponent<Rigidbody>();
-        // Xxx02RB = Xxx02.GetComponent<Rigidbody>();
-        // Xxx03RB = Xxx03.GetComponent<Rigidbody>();
+        for (int i = 0; i < num_objects; i++) 
+        {
+            rigid_bodies[i] = game_objects[i].GetComponent<Rigidbody>();
+        }
 
-        Lwaist_Joint = Lwaist.GetComponents<HingeJoint>();
-        Butt_Joint = Butt.GetComponents<HingeJoint>();
-        RightThigh1_Joint = RightThigh1.GetComponents<HingeJoint>();
-        RightShin1_Joint = RightShin1.GetComponents<HingeJoint>();
-        LeftThigh1_Joint = LeftThigh1.GetComponents<HingeJoint>();
-        LeftShin1_Joint = LeftShin1.GetComponents<HingeJoint>();
-        RightUarm1_Joint = RightUarm1.GetComponents<HingeJoint>();
-        RightLarm_Joint = RightLarm.GetComponents<HingeJoint>();
-        LeftUarm1_Joint = LeftUarm1.GetComponents<HingeJoint>();
-        LeftLarm_Joint = LeftLarm.GetComponents<HingeJoint>();
+        HingeJoint[] Lwaist_Joint = game_objects[3].GetComponents<HingeJoint>();
+        HingeJoint[] Butt_Joint = game_objects[4].GetComponents<HingeJoint>();
+        HingeJoint[] RightThigh1_Joint = game_objects[5].GetComponents<HingeJoint>();
+        HingeJoint[] RightShin1_Joint = game_objects[6].GetComponents<HingeJoint>();
+        HingeJoint[] LeftThigh1_Joint = game_objects[8].GetComponents<HingeJoint>();
+        HingeJoint[] LeftShin1_Joint = game_objects[9].GetComponents<HingeJoint>();
+        HingeJoint[] RightUarm1_Joint = game_objects[11].GetComponents<HingeJoint>();
+        HingeJoint[] RightLarm_Joint = game_objects[12].GetComponents<HingeJoint>();
+        HingeJoint[] LeftUarm1_Joint = game_objects[14].GetComponents<HingeJoint>();
+        HingeJoint[] LeftLarm_Joint = game_objects[15].GetComponents<HingeJoint>();
 
-        Reward = 0;
+        indexed_joints[0] = Lwaist_Joint[0];
+        indexed_joints[1] = Lwaist_Joint[1];    
+        indexed_joints[2] = Butt_Joint[0];
+
+        indexed_joints[3] = RightThigh1_Joint[0];
+        indexed_joints[4] = RightThigh1_Joint[1];
+        indexed_joints[5] = RightThigh1_Joint[2];  
+
+        indexed_joints[6] = RightShin1_Joint[0];
+
+        indexed_joints[7] = LeftThigh1_Joint[0];
+        indexed_joints[8] = LeftThigh1_Joint[1];
+        indexed_joints[9] = LeftThigh1_Joint[2];
+
+        indexed_joints[10] = LeftShin1_Joint[0];
+
+        indexed_joints[11] = RightUarm1_Joint[0];
+        indexed_joints[12] = RightUarm1_Joint[1];
+        indexed_joints[13] = RightLarm_Joint[0];
+
+        indexed_joints[14] = LeftUarm1_Joint[0];
+        indexed_joints[15] = LeftUarm1_Joint[1];
+        indexed_joints[16] = LeftLarm_Joint[0];
+
+        reward = 0;
         done = 0;
-        Step = 0;
-        target = 0;
-        
-        // multiplier = 1000.0f;
+        step = 0;
         countdown = 10;
-        initial_flag = true;      
+
+
+        GetPartsStates();
+        StockPartsStates();
+        GetJointsStates();
+        StockJointsStates();  
+
+        parts_data.CopyTo(init_parts_data, 0);
+        joints_data.CopyTo(init_joints_data, 0);
     }
 
     void FixedUpdate()
@@ -513,67 +171,60 @@ public class Env : MonoBehaviour
         GetPartsStates();
         StockPartsStates();
         GetJointsStates();
-        StockJointsStates();     
-        if (initial_flag)
-        {
-            parts_data.CopyTo(init_parts_data, 0);
-            joints_data.CopyTo(init_joints_data, 0);
-            initial_flag = false;
-            // for(int i=0; i<17; ++i) Debug.Log(String.Format("idx{0}: R= {1:f}", i, init_joints_data[i*2]));
-        }
+        StockJointsStates();
         DiffJointsStates();
 
-        // vectorAction = ServerRequest(data_Out);
+        StockOutputData();
+
+
+        // actions = ServerRequest(data_Out);
         System.Random cRandom = new System.Random();
-        for (int i = 0; i < 17; i++)
+        for (int i = 0; i < num_joints; i++)
         {
             double dRandom = (cRandom.NextDouble() * 2.0) - 1.0;
             float fRandom = (float)dRandom;
-            vectorAction[i] = fRandom;
+            actions[i] = fRandom; //-1f;
         }
-        
-        HingeJoint[] joint_Index = new HingeJoint[17];
-        joint_Index[0] = Lwaist_Joint[0];
-        joint_Index[1] = Lwaist_Joint[1];    
-        joint_Index[2] = Butt_Joint[0];
-        joint_Index[3] = RightThigh1_Joint[0];
-        joint_Index[4] = RightThigh1_Joint[1];
-        joint_Index[5] = RightThigh1_Joint[2];    
-        joint_Index[6] = RightShin1_Joint[0];
-        joint_Index[7] = LeftThigh1_Joint[0];
-        joint_Index[8] = LeftThigh1_Joint[1];
-        joint_Index[9] = LeftThigh1_Joint[2];
-        joint_Index[10] = LeftShin1_Joint[0];
-        joint_Index[11] = RightUarm1_Joint[0];
-        joint_Index[12] = RightUarm1_Joint[1];
-        joint_Index[13] = RightLarm_Joint[0];
-        joint_Index[14] = LeftUarm1_Joint[0];
-        joint_Index[15] = LeftUarm1_Joint[1];
-        joint_Index[16] = LeftLarm_Joint[0];
-        JointMotor[] Motors = new JointMotor[17];
-        for (int i = 0; i < 17; i++) Motors[i] = joint_Index[i].motor;
-
-        float[] motor_power = new float[17] {100, 100, 100, 100, 100, 300,  200,  100, 100, 300,  200,  75,  75,  75,  75,  75,  75};
-        float[] max_limit = new float[17]   {45,  30,  35,  5,   35,  20,   -2,   5,   35,  20,   -2,   60,  60,  50,  85,  85,  50};   
-        float[] min_limit = new float[17]   {-45, -75, -35, -25, -60, -120, -160, -25, -60, -120, -160, -85, -85, -90, -85, -85, -90};         
-
-        // int idx = 16;
-        // Debug.Log(String.Format("idx{0}: R= {1:f}", i, diff_joints_data[i*2]));
-
-        // Motors[idx].targetVelocity = Math.Sign(vectorAction[idx]) * 100f;
-        // if (diff_joints_data[idx*2] > max_limit[idx]) Motors[idx].targetVelocity = -100f;
-        // else if (diff_joints_data[idx*2] < min_limit[idx]) Motors[idx].targetVelocity = 100f;
-        // Motors[idx].force = motor_power[idx] * 0.41f * Math.Abs(vectorAction[idx]);
 
 
-        for (int i = 0; i < 17; i++)
+        // HingeJoint General
+        for (int i = 0; i < num_joints; i++)
         {
-            Motors[i].targetVelocity = Math.Sign(vectorAction[i]) * 100f;
+            if(i != 5 && i != 9) indexed_joints[i].enableCollision = false;
+            else indexed_joints[i].enableCollision = true;
+        }
+
+
+        // HingeJoint Spring
+        // JointSpring[] Springs = new JointSpring[num_joints];
+        // for (int i = 0; i < num_joints; i++) 
+        // {
+        //     Springs[i] = indexed_joints[i].spring;
+        //     Springs[i].spring = 1000;
+        //     Springs[i].damper = 10;
+        //     Springs[i].targetPosition = init_joints_data[i*2];
+        //     indexed_joints[i].spring = Springs[i];
+        //     Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}", i, diff_joints_data[i*2], diff_joints_data[i*2+1]));
+        // }
+
+
+        // HingeJoint Motor
+        JointMotor[] Motors = new JointMotor[num_joints];
+        for (int i = 0; i < num_joints; i++) Motors[i] = indexed_joints[i].motor;
+
+        float[] motor_power = new float[num_joints] {100, 100, 100, 100, 100, 300,  200,  100, 100, 300,  200,  75,  75,  75,  75,  75,  75};
+        float[] max_limit = new float[num_joints]   {45,  30,  35,  5,   35,  20,   -2,   5,   35,  20,   -2,   60,  60,  50,  85,  85,  50};   
+        float[] min_limit = new float[num_joints]   {-45, -75, -35, -25, -60, -120, -160, -25, -60, -120, -160, -85, -85, -90, -60, -60, -90};         
+
+        for (int i = 0; i < num_joints; i++)
+        {
+            Motors[i].targetVelocity = Math.Sign(actions[i]) * 100f;
             if (diff_joints_data[i*2] > max_limit[i]) Motors[i].targetVelocity = -100f;
             else if (diff_joints_data[i*2] < min_limit[i]) Motors[i].targetVelocity = 100f;
-            Motors[i].force = motor_power[i] * 0.41f * Math.Abs(vectorAction[i]);
-            joint_Index[i].useMotor = true;
-            joint_Index[i].motor = Motors[i];
+            Motors[i].force = motor_power[i] * 0.41f * Math.Abs(actions[i]);
+            Motors[i].freeSpin = true;
+            indexed_joints[i].useMotor = true;
+            indexed_joints[i].motor = Motors[i];
             Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}", i, diff_joints_data[i*2], diff_joints_data[i*2+1]));
         }
 
@@ -581,54 +232,35 @@ public class Env : MonoBehaviour
         if ((countdown <= 0) || (stop_flag)) //achieve the goal
         {
             done = 9;
-            // Quit();
+            Quit();
         }
-        else if (Step+1 >= 1024*1024)
+        else if (step > 1024)
         {
-            Reward = 0;
+            reward += 1;
             done = 1;
-            //countdown -= 1;
-            target = 0;
-            // Reset();
-        }
-        else if (Ref_y < -1f)
-        {
-            Reward = 0;
-            done = 1;
-            // Reset();
-        }
-        else if (Ref_z < target - 0.05)
-        {
-            Reward = 1;
-            if (Ref_x < 0.1f && Ref_x > -0.1f)
-            {
-                Reward += 1;
-            }
-            Step += 1;
-            target = Ref_z;
+            Reset();
         }
         else
         {
-            Reward = 0;
-            Step += 1;
+            reward += 1;
+            step += 1;
         } 
     }
 
     void Reset()
     {
-        GetPartsStates();
-        StockPartsStates();
-        // vectorAction = ServerRequest(data_Out);
+        StockOutputData();
+        // actions = ServerRequest(data_Out);
         SetInitPartsStates();
-        Reward = 0;
+        countdown -= 1;
+        reward = 0;
         done = 0;
-        Step = 0;
-        target = 0;
+        step = 0;
     }
 
     void Quit() 
     {
-        data_Out[253] = done;
+        StockOutputData();
         // ServerRequest(data_Out);
 
         #if UNITY_EDITOR
@@ -640,961 +272,65 @@ public class Env : MonoBehaviour
 
     void GetPartsStates()
     {
-        // Ref_x = Ref.transform.position.x;
-        Torso1_x = Torso1.transform.position.x;
-        Head_x = Head.transform.position.x;
-        Uwaist_x = Uwaist.transform.position.x;
-        Lwaist_x = Lwaist.transform.position.x;
-        Butt_x = Butt.transform.position.x;
-        RightThigh1_x = RightThigh1.transform.position.x;
-        RightShin1_x = RightShin1.transform.position.x;
-        RightFoot_x = RightFoot.transform.position.x;
-        LeftThigh1_x = LeftThigh1.transform.position.x;
-        LeftShin1_x = LeftShin1.transform.position.x;
-        LeftFoot_x = LeftFoot.transform.position.x;       
-        RightUarm1_x = RightUarm1.transform.position.x;
-        RightLarm_x = RightLarm.transform.position.x;
-        RightHand_x = RightHand.transform.position.x;
-        LeftUarm1_x = LeftUarm1.transform.position.x;
-        LeftLarm_x = LeftLarm.transform.position.x;
-        LeftHand_x = LeftHand.transform.position.x;
-        // Xxx01_x = Xxx01.transform.position.x;
-        // Xxx02_x = Xxx02.transform.position.x;
-        // Xxx03_x = Xxx03.transform.position.x;
-        // Ref_rx = Ref.transform.eulerAngles.x;
-        Torso1_rx = Torso1.transform.localEulerAngles.x;
-        Head_rx = Head.transform.localEulerAngles.x;
-        Uwaist_rx = Uwaist.transform.localEulerAngles.x;
-        Lwaist_rx = Lwaist.transform.localEulerAngles.x;
-        Butt_rx = Butt.transform.localEulerAngles.x;
-        RightThigh1_rx = RightThigh1.transform.localEulerAngles.x;
-        RightShin1_rx = RightShin1.transform.localEulerAngles.x;
-        RightFoot_rx = RightFoot.transform.localEulerAngles.x;
-        LeftThigh1_rx = LeftThigh1.transform.localEulerAngles.x;
-        LeftShin1_rx = LeftShin1.transform.localEulerAngles.x;
-        LeftFoot_rx = LeftFoot.transform.localEulerAngles.x;
-        RightUarm1_rx = RightUarm1.transform.localEulerAngles.x;
-        RightLarm_rx = RightLarm.transform.localEulerAngles.x;
-        RightHand_rx = RightHand.transform.localEulerAngles.x;
-        LeftUarm1_rx = LeftUarm1.transform.localEulerAngles.x;
-        LeftLarm_rx = LeftLarm.transform.localEulerAngles.x;
-        LeftHand_rx = LeftHand.transform.localEulerAngles.x;
-        // Xxx01_rx = Xxx01.transform.localEulerAngles.x;
-        // Xxx02_rx = Xxx02.transform.localEulerAngles.x;
-        // Xxx03_rx = Xxx03.transform.localEulerAngles.x;
-        // Ref_y = Ref.transform.position.y;
-        Torso1_y = Torso1.transform.position.y;
-        Head_y = Head.transform.position.y;
-        Uwaist_y = Uwaist.transform.position.y;
-        Lwaist_y = Lwaist.transform.position.y;
-        Butt_y = Butt.transform.position.y;
-        RightThigh1_y = RightThigh1.transform.position.y;
-        RightShin1_y = RightShin1.transform.position.y;
-        RightFoot_y = RightFoot.transform.position.y;
-        LeftThigh1_y = LeftThigh1.transform.position.y;
-        LeftShin1_y = LeftShin1.transform.position.y;
-        LeftFoot_y = LeftFoot.transform.position.y;
-        RightUarm1_y = RightUarm1.transform.position.y;
-        RightLarm_y = RightLarm.transform.position.y;
-        RightHand_y = RightHand.transform.position.y;
-        LeftUarm1_y = LeftUarm1.transform.position.y;
-        LeftLarm_y = LeftLarm.transform.position.y;
-        LeftHand_y = LeftHand.transform.position.y;
-        // Xxx01_y = Xxx01.transform.position.y;
-        // Xxx02_y = Xxx02.transform.position.y;
-        // Xxx03_y = Xxx03.transform.position.y;
-        // Ref_ry = Ref.transform.eulerAngles.y;
-        Torso1_ry = Torso1.transform.localEulerAngles.y;
-        Head_ry = Head.transform.localEulerAngles.y;
-        Uwaist_ry = Uwaist.transform.localEulerAngles.y;
-        Lwaist_ry = Lwaist.transform.localEulerAngles.y;
-        Butt_ry = Butt.transform.localEulerAngles.y;
-        RightThigh1_ry = RightThigh1.transform.localEulerAngles.y;
-        RightShin1_ry = RightShin1.transform.localEulerAngles.y;
-        RightFoot_ry = RightFoot.transform.localEulerAngles.y;
-        LeftThigh1_ry = LeftThigh1.transform.localEulerAngles.y;
-        LeftShin1_ry = LeftShin1.transform.localEulerAngles.y;
-        LeftFoot_ry = LeftFoot.transform.localEulerAngles.y;
-        RightUarm1_ry = RightUarm1.transform.localEulerAngles.y;
-        RightLarm_ry = RightLarm.transform.localEulerAngles.y;
-        RightHand_ry = RightHand.transform.localEulerAngles.y;
-        LeftUarm1_ry = LeftUarm1.transform.localEulerAngles.y;
-        LeftLarm_ry = LeftLarm.transform.localEulerAngles.y;
-        LeftHand_ry = LeftHand.transform.localEulerAngles.y;
-        // Xxx01_ry = Xxx01.transform.localEulerAngles.y;
-        // Xxx02_ry = Xxx02.transform.localEulerAngles.y;
-        // Xxx03_ry = Xxx03.transform.localEulerAngles.y;
-        // Ref_z = Ref.transform.position.z;
-        Torso1_z = Torso1.transform.position.z;
-        Head_z = Head.transform.position.z;
-        Uwaist_z = Uwaist.transform.position.z;
-        Lwaist_z = Lwaist.transform.position.z;
-        Butt_z = Butt.transform.position.z;
-        RightThigh1_z = RightThigh1.transform.position.z;
-        RightShin1_z = RightShin1.transform.position.z;
-        RightFoot_z = RightFoot.transform.position.z;
-        LeftThigh1_z = LeftThigh1.transform.position.z;
-        LeftShin1_z = LeftShin1.transform.position.z;
-        LeftFoot_z = LeftFoot.transform.position.z;
-        RightUarm1_z = RightUarm1.transform.position.z;
-        RightLarm_z = RightLarm.transform.position.z;
-        RightHand_z = RightHand.transform.position.z;
-        LeftUarm1_z = LeftUarm1.transform.position.z;
-        LeftLarm_z = LeftLarm.transform.position.z;
-        LeftHand_z = LeftHand.transform.position.z;
-        // Xxx01_z = Xxx01.transform.position.z;
-        // Xxx02_z = Xxx02.transform.position.z;
-        // Xxx03_z = Xxx03.transform.position.z;
-        // Ref_rz = Ref.transform.eulerAngles.z;
-        Torso1_rz = Torso1.transform.localEulerAngles.z;
-        Head_rz = Head.transform.localEulerAngles.z;
-        Uwaist_rz = Uwaist.transform.localEulerAngles.z;
-        Lwaist_rz = Lwaist.transform.localEulerAngles.z;
-        Butt_rz = Butt.transform.localEulerAngles.z;
-        RightThigh1_rz = RightThigh1.transform.localEulerAngles.z;
-        RightShin1_rz = RightShin1.transform.localEulerAngles.z;
-        RightFoot_rz = RightFoot.transform.localEulerAngles.z;
-        LeftThigh1_rz = LeftThigh1.transform.localEulerAngles.z;
-        LeftShin1_rz = LeftShin1.transform.localEulerAngles.z;
-        LeftFoot_rz = LeftFoot.transform.localEulerAngles.z;
-        RightUarm1_rz = RightUarm1.transform.localEulerAngles.z;
-        RightLarm_rz = RightLarm.transform.localEulerAngles.z;
-        RightHand_rz = RightHand.transform.localEulerAngles.z;
-        LeftUarm1_rz = LeftUarm1.transform.localEulerAngles.z;
-        LeftLarm_rz = LeftLarm.transform.localEulerAngles.z;
-        LeftHand_rz = LeftHand.transform.localEulerAngles.z;
-        // Xxx01_rz = Xxx01.transform.localEulerAngles.z;
-        // Xxx02_rz = Xxx02.transform.localEulerAngles.z;
-        // Xxx03_rz = Xxx03.transform.localEulerAngles.z;
-        // RefRB_x = RefRB.velocity.x;
-        Torso1RB_x = Torso1RB.velocity.x;
-        HeadRB_x = HeadRB.velocity.x;
-        UwaistRB_x = UwaistRB.velocity.x;
-        LwaistRB_x = LwaistRB.velocity.x;
-        ButtRB_x = ButtRB.velocity.x;
-        RightThigh1RB_x = RightThigh1RB.velocity.x;
-        RightShin1RB_x = RightShin1RB.velocity.x;
-        RightFootRB_x = RightFootRB.velocity.x;
-        LeftThigh1RB_x = LeftThigh1RB.velocity.x;
-        LeftShin1RB_x = LeftShin1RB.velocity.x;
-        LeftFootRB_x = LeftFootRB.velocity.x;
-        RightUarm1RB_x = RightUarm1RB.velocity.x;
-        RightLarmRB_x = RightLarmRB.velocity.x;
-        RightHandRB_x = RightHandRB.velocity.x;
-        LeftUarm1RB_x = LeftUarm1RB.velocity.x;
-        LeftLarmRB_x = LeftLarmRB.velocity.x;
-        LeftHandRB_x = LeftHandRB.velocity.x;
-        // Xxx01RB_x = Xxx01RB.velocity.x;
-        // Xxx02RB_x = Xxx02RB.velocity.x;
-        // Xxx03RB_x = Xxx03RB.velocity.x;
-        // RefRB_rx = RefRB.angularVelocity.x;
-        Torso1RB_rx = Torso1RB.angularVelocity.x;
-        HeadRB_rx = HeadRB.angularVelocity.x;
-        UwaistRB_rx = UwaistRB.angularVelocity.x;
-        LwaistRB_rx = LwaistRB.angularVelocity.x;
-        ButtRB_rx = ButtRB.angularVelocity.x;
-        RightThigh1RB_rx = RightThigh1RB.angularVelocity.x;
-        RightShin1RB_rx = RightShin1RB.angularVelocity.x;
-        RightFootRB_rx = RightFootRB.angularVelocity.x;
-        LeftThigh1RB_rx = LeftThigh1RB.angularVelocity.x;
-        LeftShin1RB_rx = LeftShin1RB.angularVelocity.x;
-        LeftFootRB_rx = LeftFootRB.angularVelocity.x;
-        RightUarm1RB_rx = RightUarm1RB.angularVelocity.x;
-        RightLarmRB_rx = RightLarmRB.angularVelocity.x;
-        RightHandRB_rx = RightHandRB.angularVelocity.x;
-        LeftUarm1RB_rx = LeftUarm1RB.angularVelocity.x;
-        LeftLarmRB_rx = LeftLarmRB.angularVelocity.x;
-        LeftHandRB_rx = LeftHandRB.angularVelocity.x;
-        // Xxx01RB_rx = Xxx01RB.angularVelocity.x;
-        // Xxx02RB_rx = Xxx02RB.angularVelocity.x;
-        // Xxx03RB_rx = Xxx03RB.angularVelocity.x;
-        // RefRB_y = RefRB.velocity.y;
-        Torso1RB_y = Torso1RB.velocity.y;
-        HeadRB_y = HeadRB.velocity.y;
-        UwaistRB_y = UwaistRB.velocity.y;
-        LwaistRB_y = LwaistRB.velocity.y;
-        ButtRB_y = ButtRB.velocity.y;
-        RightThigh1RB_y = RightThigh1RB.velocity.y;
-        RightShin1RB_y = RightShin1RB.velocity.y;
-        RightFootRB_y = RightFootRB.velocity.y;
-        LeftThigh1RB_y = LeftThigh1RB.velocity.y;
-        LeftShin1RB_y = LeftShin1RB.velocity.y;
-        LeftFootRB_y = LeftFootRB.velocity.y;
-        RightUarm1RB_y = RightUarm1RB.velocity.y;
-        RightLarmRB_y = RightLarmRB.velocity.y;
-        RightHandRB_y = RightHandRB.velocity.y;
-        LeftUarm1RB_y = LeftUarm1RB.velocity.y;
-        LeftLarmRB_y = LeftLarmRB.velocity.y;
-        LeftHandRB_y = LeftHandRB.velocity.y;
-        // Xxx01RB_y = Xxx01RB.velocity.y;
-        // Xxx02RB_y = Xxx02RB.velocity.y;
-        // Xxx03RB_y = Xxx03RB.velocity.y;
-        // RefRB_ry = RefRB.angularVelocity.y;
-        Torso1RB_ry = Torso1RB.angularVelocity.y;
-        HeadRB_ry = HeadRB.angularVelocity.y;
-        UwaistRB_ry = UwaistRB.angularVelocity.y;
-        LwaistRB_ry = LwaistRB.angularVelocity.y;
-        ButtRB_ry = ButtRB.angularVelocity.y;
-        RightThigh1RB_ry = RightThigh1RB.angularVelocity.y;
-        RightShin1RB_ry = RightShin1RB.angularVelocity.y;
-        RightFootRB_ry = RightFootRB.angularVelocity.y;
-        LeftThigh1RB_ry = LeftThigh1RB.angularVelocity.y;
-        LeftShin1RB_ry = LeftShin1RB.angularVelocity.y;
-        LeftFootRB_ry = LeftFootRB.angularVelocity.y;
-        RightUarm1RB_ry = RightUarm1RB.angularVelocity.y;
-        RightLarmRB_ry = RightLarmRB.angularVelocity.y;
-        RightHandRB_ry = RightHandRB.angularVelocity.y;
-        LeftUarm1RB_ry = LeftUarm1RB.angularVelocity.y;
-        LeftLarmRB_ry = LeftLarmRB.angularVelocity.y;
-        LeftHandRB_ry = LeftHandRB.angularVelocity.y;
-        // Xxx01RB_ry = Xxx01RB.angularVelocity.y;
-        // Xxx02RB_ry = Xxx02RB.angularVelocity.y;
-        // Xxx03RB_ry = Xxx03RB.angularVelocity.y;
-        // RefRB_z = RefRB.velocity.z;
-        Torso1RB_z = Torso1RB.velocity.z;
-        HeadRB_z = HeadRB.velocity.z;
-        UwaistRB_z = UwaistRB.velocity.z;
-        LwaistRB_z = LwaistRB.velocity.z;
-        ButtRB_z = ButtRB.velocity.z;
-        RightThigh1RB_z = RightThigh1RB.velocity.z;
-        RightShin1RB_z = RightShin1RB.velocity.z;
-        RightFootRB_z = RightFootRB.velocity.z;
-        LeftThigh1RB_z = LeftThigh1RB.velocity.z;
-        LeftShin1RB_z = LeftShin1RB.velocity.z;
-        LeftFootRB_z = LeftFootRB.velocity.z;
-        RightUarm1RB_z = RightUarm1RB.velocity.z;
-        RightLarmRB_z = RightLarmRB.velocity.z;
-        RightHandRB_z = RightHandRB.velocity.z;
-        LeftUarm1RB_z = LeftUarm1RB.velocity.z;
-        LeftLarmRB_z = LeftLarmRB.velocity.z;
-        LeftHandRB_z = LeftHandRB.velocity.z;
-        // Xxx01RB_z = Xxx01RB.velocity.z;
-        // Xxx02RB_z = Xxx02RB.velocity.z;
-        // Xxx03RB_z = Xxx03RB.velocity.z;
-        // RefRB_rz = RefRB.angularVelocity.z;
-        Torso1RB_rz = Torso1RB.angularVelocity.z;
-        HeadRB_rz = HeadRB.angularVelocity.z;
-        UwaistRB_rz = UwaistRB.angularVelocity.z;
-        LwaistRB_rz = LwaistRB.angularVelocity.z;
-        ButtRB_rz = ButtRB.angularVelocity.z;
-        RightThigh1RB_rz = RightThigh1RB.angularVelocity.z;
-        RightShin1RB_rz = RightShin1RB.angularVelocity.z;
-        RightFootRB_rz = RightFootRB.angularVelocity.z;
-        LeftThigh1RB_rz = LeftThigh1RB.angularVelocity.z;
-        LeftShin1RB_rz = LeftShin1RB.angularVelocity.z;
-        LeftFootRB_rz = LeftFootRB.angularVelocity.z;
-        RightUarm1RB_rz = RightUarm1RB.angularVelocity.z;
-        RightLarmRB_rz = RightLarmRB.angularVelocity.z;
-        RightHandRB_rz = RightHandRB.angularVelocity.z;
-        LeftUarm1RB_rz = LeftUarm1RB.angularVelocity.z;
-        LeftLarmRB_rz = LeftLarmRB.angularVelocity.z;
-        LeftHandRB_rz = LeftHandRB.angularVelocity.z;
-        // Xxx01RB_rz = Xxx01RB.angularVelocity.z;
-        // Xxx02RB_rz = Xxx02RB.angularVelocity.z;
-        // Xxx03RB_rz = Xxx03RB.angularVelocity.z;
+        for (int i = 0; i < num_objects; i++) 
+        {
+            game_objects_x[i] = game_objects[i].transform.position.x;
+            game_objects_y[i] = game_objects[i].transform.position.y;
+            game_objects_z[i] = game_objects[i].transform.position.z;
+            game_objects_rx[i] = game_objects[i].transform.localEulerAngles.x;
+            game_objects_ry[i] = game_objects[i].transform.localEulerAngles.y;
+            game_objects_rz[i] = game_objects[i].transform.localEulerAngles.z;
+            rigid_bodies_vx[i] = rigid_bodies[i].velocity.x;
+            rigid_bodies_vy[i] = rigid_bodies[i].velocity.y;
+            rigid_bodies_vz[i] = rigid_bodies[i].velocity.z;
+            rigid_bodies_wx[i] = rigid_bodies[i].angularVelocity.x;
+            rigid_bodies_wy[i] = rigid_bodies[i].angularVelocity.y;
+            rigid_bodies_wz[i] = rigid_bodies[i].angularVelocity.z;
+        }
     }
     void StockPartsStates()
     {
-        int i = 0;
-        parts_data[i] = Head_x;
-        i += 1;
-        parts_data[i] = Uwaist_x;
-        i += 1;
-        parts_data[i] = Lwaist_x;
-        i += 1;
-        parts_data[i] = Butt_x;
-        i += 1;
-        parts_data[i] = RightThigh1_x;
-        i += 1;
-        parts_data[i] = RightShin1_x;
-        i += 1;
-        parts_data[i] = RightFoot_x;
-        i += 1;
-        parts_data[i] = LeftThigh1_x;
-        i += 1;
-        parts_data[i] = LeftShin1_x;
-        i += 1;
-        parts_data[i] = LeftFoot_x;
-        i += 1;
-        parts_data[i] = Head_rx;
-        i += 1;
-        parts_data[i] = Uwaist_rx;
-        i += 1;
-        parts_data[i] = Lwaist_rx;
-        i += 1;
-        parts_data[i] = Butt_rx;
-        i += 1;
-        parts_data[i] = RightThigh1_rx;
-        i += 1;
-        parts_data[i] = RightShin1_rx;
-        i += 1;
-        parts_data[i] = RightFoot_rx;
-        i += 1;
-        parts_data[i] = LeftThigh1_rx;
-        i += 1;
-        parts_data[i] = LeftShin1_rx;
-        i += 1;
-        parts_data[i] = LeftFoot_rx;
-        i += 1;
-        parts_data[i] = Head_y;
-        i += 1;
-        parts_data[i] = Uwaist_y;
-        i += 1;
-        parts_data[i] = Lwaist_y;
-        i += 1;
-        parts_data[i] = Butt_y;
-        i += 1;
-        parts_data[i] = RightThigh1_y;
-        i += 1;
-        parts_data[i] = RightShin1_y;
-        i += 1;
-        parts_data[i] = RightFoot_y;
-        i += 1;
-        parts_data[i] = LeftThigh1_y;
-        i += 1;
-        parts_data[i] = LeftShin1_y;
-        i += 1;
-        parts_data[i] = LeftFoot_y;
-        i += 1;
-        parts_data[i] = Head_ry;
-        i += 1;
-        parts_data[i] = Uwaist_ry;
-        i += 1;
-        parts_data[i] = Lwaist_ry;
-        i += 1;
-        parts_data[i] = Butt_ry;
-        i += 1;
-        parts_data[i] = RightThigh1_ry;
-        i += 1;
-        parts_data[i] = RightShin1_ry;
-        i += 1;
-        parts_data[i] = RightFoot_ry;
-        i += 1;
-        parts_data[i] = LeftThigh1_ry;
-        i += 1;
-        parts_data[i] = LeftShin1_ry;
-        i += 1;
-        parts_data[i] = LeftFoot_ry;
-        i += 1;
-        parts_data[i] = Head_z;
-        i += 1;
-        parts_data[i] = Uwaist_z;
-        i += 1;
-        parts_data[i] = Lwaist_z;
-        i += 1;
-        parts_data[i] = Butt_z;
-        i += 1;
-        parts_data[i] = RightThigh1_z;
-        i += 1;
-        parts_data[i] = RightShin1_z;
-        i += 1;
-        parts_data[i] = RightFoot_z;
-        i += 1;
-        parts_data[i] = LeftThigh1_z;
-        i += 1;
-        parts_data[i] = LeftShin1_z;
-        i += 1;
-        parts_data[i] = LeftFoot_z;
-        i += 1;
-        parts_data[i] = Head_rz;
-        i += 1;
-        parts_data[i] = Uwaist_rz;
-        i += 1;
-        parts_data[i] = Lwaist_rz;
-        i += 1;
-        parts_data[i] = Butt_rz;
-        i += 1;
-        parts_data[i] = RightThigh1_rz;
-        i += 1;
-        parts_data[i] = RightShin1_rz;
-        i += 1;
-        parts_data[i] = RightFoot_rz;
-        i += 1;
-        parts_data[i] = LeftThigh1_rz;
-        i += 1;
-        parts_data[i] = LeftShin1_rz;
-        i += 1;
-        parts_data[i] = LeftFoot_rz;
-        i += 1;
-        parts_data[i] = HeadRB_x;
-        i += 1;
-        parts_data[i] = UwaistRB_x;
-        i += 1;
-        parts_data[i] = LwaistRB_x;
-        i += 1;
-        parts_data[i] = ButtRB_x;
-        i += 1;
-        parts_data[i] = RightThigh1RB_x;
-        i += 1;
-        parts_data[i] = RightShin1RB_x;
-        i += 1;
-        parts_data[i] = RightFootRB_x;
-        i += 1;
-        parts_data[i] = LeftThigh1RB_x;
-        i += 1;
-        parts_data[i] = LeftShin1RB_x;
-        i += 1;
-        parts_data[i] = LeftFootRB_x;
-        i += 1;
-        parts_data[i] = HeadRB_rx;
-        i += 1;
-        parts_data[i] = UwaistRB_rx;
-        i += 1;
-        parts_data[i] = LwaistRB_rx;
-        i += 1;
-        parts_data[i] = ButtRB_rx;
-        i += 1;
-        parts_data[i] = RightThigh1RB_rx;
-        i += 1;
-        parts_data[i] = RightShin1RB_rx;
-        i += 1;
-        parts_data[i] = RightFootRB_rx;
-        i += 1;
-        parts_data[i] = LeftThigh1RB_rx;
-        i += 1;
-        parts_data[i] = LeftShin1RB_rx;
-        i += 1;
-        parts_data[i] = LeftFootRB_rx;
-        i += 1;
-        parts_data[i] = HeadRB_y;
-        i += 1;
-        parts_data[i] = UwaistRB_y;
-        i += 1;
-        parts_data[i] = LwaistRB_y;
-        i += 1;
-        parts_data[i] = ButtRB_y;
-        i += 1;
-        parts_data[i] = RightThigh1RB_y;
-        i += 1;
-        parts_data[i] = RightShin1RB_y;
-        i += 1;
-        parts_data[i] = RightFootRB_y;
-        i += 1;
-        parts_data[i] = LeftThigh1RB_y;
-        i += 1;
-        parts_data[i] = LeftShin1RB_y;
-        i += 1;
-        parts_data[i] = LeftFootRB_y;
-        i += 1;
-        parts_data[i] = HeadRB_ry;
-        i += 1;
-        parts_data[i] = UwaistRB_ry;
-        i += 1;
-        parts_data[i] = LwaistRB_ry;
-        i += 1;
-        parts_data[i] = ButtRB_ry;
-        i += 1;
-        parts_data[i] = RightThigh1RB_ry;
-        i += 1;
-        parts_data[i] = RightShin1RB_ry;
-        i += 1;
-        parts_data[i] = RightFootRB_ry;
-        i += 1;
-        parts_data[i] = LeftThigh1RB_ry;
-        i += 1;
-        parts_data[i] = LeftShin1RB_ry;
-        i += 1;
-        parts_data[i] = LeftFootRB_ry;
-        i += 1;
-        parts_data[i] = HeadRB_z;
-        i += 1;
-        parts_data[i] = UwaistRB_z;
-        i += 1;
-        parts_data[i] = LwaistRB_z;
-        i += 1;
-        parts_data[i] = ButtRB_z;
-        i += 1;
-        parts_data[i] = RightThigh1RB_z;
-        i += 1;
-        parts_data[i] = RightShin1RB_z;
-        i += 1;
-        parts_data[i] = RightFootRB_z;
-        i += 1;
-        parts_data[i] = LeftThigh1RB_z;
-        i += 1;
-        parts_data[i] = LeftShin1RB_z;
-        i += 1;
-        parts_data[i] = LeftFootRB_z;
-        i += 1;
-        parts_data[i] = HeadRB_rz;
-        i += 1;
-        parts_data[i] = UwaistRB_rz;
-        i += 1;
-        parts_data[i] = LwaistRB_rz;
-        i += 1;
-        parts_data[i] = ButtRB_rz;
-        i += 1;
-        parts_data[i] = RightThigh1RB_rz;
-        i += 1;
-        parts_data[i] = RightShin1RB_rz;
-        i += 1;
-        parts_data[i] = RightFootRB_rz;
-        i += 1;
-        parts_data[i] = LeftThigh1RB_rz;
-        i += 1;
-        parts_data[i] = LeftShin1RB_rz;
-        i += 1;
-        parts_data[i] = LeftFootRB_rz;
-        // i += 1;
-        // parts_data[i] = Ref_x;
-        i += 1;
-        parts_data[i] = Torso1_x;
-        i += 1;
-        parts_data[i] = RightUarm1_x;
-        i += 1;
-        parts_data[i] = RightLarm_x;
-        i += 1;
-        parts_data[i] = RightHand_x;
-        i += 1;
-        parts_data[i] = LeftUarm1_x;
-        i += 1;
-        parts_data[i] = LeftLarm_x;
-        i += 1;
-        parts_data[i] = LeftHand_x;
-        // i += 1;
-        // parts_data[i] = Xxx01_x;
-        // i += 1;
-        // parts_data[i] = Xxx02_x;
-        // i += 1;
-        // parts_data[i] = Xxx03_x;
-        // i += 1;
-        // parts_data[i] = Ref_rx / 180f;
-        i += 1;
-        parts_data[i] = Torso1_rx / 180f;
-        i += 1;
-        parts_data[i] = RightUarm1_rx / 180f;
-        i += 1;
-        parts_data[i] = RightLarm_rx / 180f;
-        i += 1;
-        parts_data[i] = RightHand_rx / 180f;
-        i += 1;
-        parts_data[i] = LeftUarm1_rx / 180f;
-        i += 1;
-        parts_data[i] = LeftLarm_rx / 180f;
-        i += 1;
-        parts_data[i] = LeftHand_rx / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx01_rx / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx02_rx / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx03_rx / 180f;
-        // i += 1;
-        // parts_data[i] = Ref_y;
-        i += 1;
-        parts_data[i] = Torso1_y;
-        i += 1;
-        parts_data[i] = RightUarm1_y;
-        i += 1;
-        parts_data[i] = RightLarm_y;
-        i += 1;
-        parts_data[i] = RightHand_y;
-        i += 1;
-        parts_data[i] = LeftUarm1_y;
-        i += 1;
-        parts_data[i] = LeftLarm_y;
-        i += 1;
-        parts_data[i] = LeftHand_y;
-        // i += 1;
-        // parts_data[i] = Xxx01_y;
-        // i += 1;
-        // parts_data[i] = Xxx02_y;
-        // i += 1;
-        // parts_data[i] = Xxx03_y;
-        // i += 1;
-        // parts_data[i] = Ref_ry / 180f;
-        i += 1;
-        parts_data[i] = Torso1_ry / 180f;
-        i += 1;
-        parts_data[i] = RightUarm1_ry / 180f;
-        i += 1;
-        parts_data[i] = RightLarm_ry / 180f;
-        i += 1;
-        parts_data[i] = RightHand_ry / 180f;
-        i += 1;
-        parts_data[i] = LeftUarm1_ry / 180f;
-        i += 1;
-        parts_data[i] = LeftLarm_ry / 180f;
-        i += 1;
-        parts_data[i] = LeftHand_ry / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx01_ry / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx02_ry / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx03_ry / 180f;
-        // i += 1;
-        // parts_data[i] = Ref_z;
-        i += 1;
-        parts_data[i] = Torso1_z;
-        i += 1;
-        parts_data[i] = RightUarm1_z;
-        i += 1;
-        parts_data[i] = RightLarm_z;
-        i += 1;
-        parts_data[i] = RightHand_z;
-        i += 1;
-        parts_data[i] = LeftUarm1_z;
-        i += 1;
-        parts_data[i] = LeftLarm_z;
-        i += 1;
-        parts_data[i] = LeftHand_z;
-        // i += 1;
-        // parts_data[i] = Xxx01_z;
-        // i += 1;
-        // parts_data[i] = Xxx02_z;
-        // i += 1;
-        // parts_data[i] = Xxx03_z;
-        // i += 1;
-        // parts_data[i] = Ref_rz / 180f;
-        i += 1;
-        parts_data[i] = Torso1_rz / 180f;
-        i += 1;
-        parts_data[i] = RightUarm1_rz / 180f;
-        i += 1;
-        parts_data[i] = RightLarm_rz / 180f;
-        i += 1;
-        parts_data[i] = RightHand_rz / 180f;
-        i += 1;
-        parts_data[i] = LeftUarm1_rz / 180f;
-        i += 1;
-        parts_data[i] = LeftLarm_rz / 180f;
-        i += 1;
-        parts_data[i] = LeftHand_rz / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx01_rz / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx02_rz / 180f;
-        // i += 1;
-        // parts_data[i] = Xxx03_rz / 180f;
-        // i += 1;
-        // parts_data[i] = RefRB_x;
-        i += 1;
-        parts_data[i] = Torso1RB_x;
-        i += 1;
-        parts_data[i] = RightUarm1RB_x;
-        i += 1;
-        parts_data[i] = RightLarmRB_x;
-        i += 1;
-        parts_data[i] = RightHandRB_x;
-        i += 1;
-        parts_data[i] = LeftUarm1RB_x;
-        i += 1;
-        parts_data[i] = LeftLarmRB_x;
-        i += 1;
-        parts_data[i] = LeftHandRB_x;
-        // i += 1;
-        // parts_data[i] = Xxx01RB_x;
-        // i += 1;
-        // parts_data[i] = Xxx02RB_x;
-        // i += 1;
-        // parts_data[i] = Xxx03RB_x;
-        // i += 1;
-        // parts_data[i] = RefRB_rx;
-        i += 1;
-        parts_data[i] = Torso1RB_rx;
-        i += 1;
-        parts_data[i] = RightUarm1RB_rx;
-        i += 1;
-        parts_data[i] = RightLarmRB_rx;
-        i += 1;
-        parts_data[i] = RightHandRB_rx;
-        i += 1;
-        parts_data[i] = LeftUarm1RB_rx;
-        i += 1;
-        parts_data[i] = LeftLarmRB_rx;
-        i += 1;
-        parts_data[i] = LeftHandRB_rx;
-        // i += 1;
-        // parts_data[i] = Xxx01RB_rx;
-        // i += 1;
-        // parts_data[i] = Xxx02RB_rx;
-        // i += 1;
-        // parts_data[i] = Xxx03RB_rx;
-        // i += 1;
-        // parts_data[i] = RefRB_y;
-        i += 1;
-        parts_data[i] = Torso1RB_y;
-        i += 1;
-        parts_data[i] = RightUarm1RB_y;
-        i += 1;
-        parts_data[i] = RightLarmRB_y;
-        i += 1;
-        parts_data[i] = RightHandRB_y;
-        i += 1;
-        parts_data[i] = LeftUarm1RB_y;
-        i += 1;
-        parts_data[i] = LeftLarmRB_y;
-        i += 1;
-        parts_data[i] = LeftHandRB_y;
-        // i += 1;
-        // parts_data[i] = Xxx01RB_y;
-        // i += 1;
-        // parts_data[i] = Xxx02RB_y;
-        // i += 1;
-        // parts_data[i] = Xxx03RB_y;
-        // i += 1;
-        // parts_data[i] = RefRB_ry;
-        i += 1;
-        parts_data[i] = Torso1RB_ry;
-        i += 1;
-        parts_data[i] = RightUarm1RB_ry;
-        i += 1;
-        parts_data[i] = RightLarmRB_ry;
-        i += 1;
-        parts_data[i] = RightHandRB_ry;
-        i += 1;
-        parts_data[i] = LeftUarm1RB_ry;
-        i += 1;
-        parts_data[i] = LeftLarmRB_ry;
-        i += 1;
-        parts_data[i] = LeftHandRB_ry;
-        // i += 1;
-        // parts_data[i] = Xxx01RB_ry;
-        // i += 1;
-        // parts_data[i] = Xxx02RB_ry;
-        // i += 1;
-        // parts_data[i] = Xxx03RB_ry;
-        // i += 1;
-        // parts_data[i] = RefRB_z;
-        i += 1;
-        parts_data[i] = Torso1RB_z;
-        i += 1;
-        parts_data[i] = RightUarm1RB_z;
-        i += 1;
-        parts_data[i] = RightLarmRB_z;
-        i += 1;
-        parts_data[i] = RightHandRB_z;
-        i += 1;
-        parts_data[i] = LeftUarm1RB_z;
-        i += 1;
-        parts_data[i] = LeftLarmRB_z;
-        i += 1;
-        parts_data[i] = LeftHandRB_z;
-        // i += 1;
-        // parts_data[i] = Xxx01RB_z;
-        // i += 1;
-        // parts_data[i] = Xxx02RB_z;
-        // i += 1;
-        // parts_data[i] = Xxx03RB_z;
-        // i += 1;
-        // parts_data[i] = RefRB_rz;
-        i += 1;
-        parts_data[i] = Torso1RB_rz;
-        i += 1;
-        parts_data[i] = RightUarm1RB_rz;
-        i += 1;
-        parts_data[i] = RightLarmRB_rz;
-        i += 1;
-        parts_data[i] = RightHandRB_rz;
-        i += 1;
-        parts_data[i] = LeftUarm1RB_rz;
-        i += 1;
-        parts_data[i] = LeftLarmRB_rz;
-        i += 1;
-        parts_data[i] = LeftHandRB_rz;
-        // i += 1;
-        // parts_data[i] = Xxx01RB_rz;
-        // i += 1;
-        // parts_data[i] = Xxx02RB_rz;
-        // i += 1;
-        // parts_data[i] = Xxx03RB_rz;
-        // i += 1;
-        // parts_data[i] = Reward;
-        // i += 1;
-        // parts_data[i] = done;
+        for (int i = 0; i < num_objects; i++) 
+        {
+            parts_data[i*12+0] = game_objects_x[i];
+            parts_data[i*12+1] = game_objects_y[i];
+            parts_data[i*12+2] = game_objects_z[i];
+            parts_data[i*12+3] = game_objects_rx[i];
+            parts_data[i*12+4] = game_objects_ry[i];
+            parts_data[i*12+5] = game_objects_rz[i];
+            parts_data[i*12+6] = rigid_bodies_vx[i];
+            parts_data[i*12+7] = rigid_bodies_vy[i];
+            parts_data[i*12+8] = rigid_bodies_vz[i];
+            parts_data[i*12+9] = rigid_bodies_wx[i];
+            parts_data[i*12+10] = rigid_bodies_wy[i];
+            parts_data[i*12+11] = rigid_bodies_wz[i];
+        }
     }
     void SetInitPartsStates()
     {
-        int i = 0;
-        Head.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        Uwaist.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        Lwaist.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        Butt.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        RightThigh1.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        RightShin1.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        RightFoot.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        LeftThigh1.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        LeftShin1.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        LeftFoot.transform.position = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        Head.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        Uwaist.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        Lwaist.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        Butt.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        RightThigh1.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        RightShin1.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        RightFoot.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        LeftThigh1.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        LeftShin1.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-        i += 1;
-        LeftFoot.transform.localEulerAngles = new Vector3(init_parts_data[i], init_parts_data[i+20], init_parts_data[i+40]);
-
-        i = 0;
-        HeadRB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        UwaistRB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LwaistRB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        ButtRB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        RightThigh1RB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        RightShin1RB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        RightFootRB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LeftThigh1RB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LeftShin1RB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LeftFootRB.velocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        HeadRB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        UwaistRB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LwaistRB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        ButtRB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        RightThigh1RB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        RightShin1RB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        RightFootRB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LeftThigh1RB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LeftShin1RB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-        i += 1;
-        LeftFootRB.angularVelocity = new Vector3(init_parts_data[i+60], init_parts_data[i+80], init_parts_data[i+100]);
-
-        i = 0;
-        // Ref.transform.position = new Vector3(0f, 0f, 0f);
-        i += 1;
-        Torso1.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        i += 1;
-        RightUarm1.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        i += 1;
-        RightLarm.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        i += 1;
-        RightHand.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        i += 1;
-        LeftUarm1.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        i += 1;
-        LeftLarm.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        i += 1;
-        LeftHand.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        // i += 1;
-        // Xxx01.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        // i += 1;
-        // Xxx02.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        // i += 1;
-        // Xxx03.transform.position = new Vector3(init_parts_data[i+120], init_parts_data[i+142], init_parts_data[i+164]);
-        i += 1;
-        // Ref.transform.eulerAngles = new Vector3(0f, 90f, -85f);
-        i += 1;
-        Torso1.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        i += 1;
-        RightUarm1.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        i += 1;
-        RightLarm.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        i += 1;
-        RightHand.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        i += 1;
-        LeftUarm1.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        i += 1;
-        LeftLarm.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        i += 1;
-        LeftHand.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        // i += 1;
-        // Xxx01.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        // i += 1;
-        // Xxx02.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-        // i += 1;
-        // Xxx03.transform.localEulerAngles = new Vector3(init_parts_data[i+120] * 180f, init_parts_data[i+142] * 180f, init_parts_data[i+164] * 180f);
-
-        i = 0;
-        // RefRB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        Torso1RB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        RightUarm1RB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        RightLarmRB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        RightHandRB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        LeftUarm1RB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        LeftLarmRB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        LeftHandRB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        // i += 1;
-        // Xxx01RB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        // i += 1;
-        // Xxx02RB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        // i += 1;
-        // Xxx03RB.velocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        // RefRB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        Torso1RB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        RightUarm1RB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        RightLarmRB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        RightHandRB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        LeftUarm1RB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        LeftLarmRB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        i += 1;
-        LeftHandRB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        // i += 1;
-        // Xxx01RB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        // i += 1;
-        // Xxx02RB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-        // i += 1;
-        // Xxx03RB.angularVelocity = new Vector3(init_parts_data[i+186], init_parts_data[i+208], init_parts_data[i+230]);
-
-        Floor.transform.position = new Vector3(0f, -1.57f, 0f);
-        Floor.transform.eulerAngles = new Vector3(0f, 0f, 0f);
-        FloorRB.velocity = new Vector3(0f, 0f, 0f);
-        FloorRB.angularVelocity = new Vector3(0f, 0f, 0f);
+        for (int i = 0; i < num_objects; i++) 
+        {
+            game_objects[i].transform.position = new Vector3(init_parts_data[i*12+0], init_parts_data[i*12+1], init_parts_data[i*12+2]);
+            game_objects[i].transform.localEulerAngles = new Vector3(init_parts_data[i*12+3], init_parts_data[i*12+4], init_parts_data[i*12+5]);
+            rigid_bodies[i].velocity = new Vector3(init_parts_data[i*12+6], init_parts_data[i*12+7], init_parts_data[i*12+8]);
+            rigid_bodies[i].angularVelocity = new Vector3(init_parts_data[i*12+9], init_parts_data[i*12+10], init_parts_data[i*12+11]);
+        }        
+        // Floor.transform.position = new Vector3(0f, -1.57f, 0f);
+        // Floor.transform.eulerAngles = new Vector3(0f, 0f, 0f);
+        // FloorRB.velocity = new Vector3(0f, 0f, 0f);
+        // FloorRB.angularVelocity = new Vector3(0f, 0f, 0f);
     }
     float CurrentRelativePosition(HingeJoint hinge_joint)
     {
             double pos = Vector3.Dot(hinge_joint.axis, hinge_joint.transform.localEulerAngles);
-            // if (pos < hinge_joint.limits.min)
-            // {
-            //     pos = pos + 360;
-            // }       
-            // if (pos > hinge_joint.limits.max)
-            // {
-            //     pos = pos - 360;
-            // }
-            // pos = (pos - (hinge_joint.limits.max + hinge_joint.limits.min)/2) / ((hinge_joint.limits.max - hinge_joint.limits.min)/2);
+            if (pos < -180)
+            {
+                pos = pos + 360;
+            }       
+            if (pos > 180)
+            {
+                pos = pos - 360;
+            }
 
             float pos_ = (float)pos;
 
@@ -1602,139 +338,63 @@ public class Env : MonoBehaviour
     }
     float CurrentRelativeVelosity(HingeJoint hinge_joint)
     {
-            double vel = 0.1 * hinge_joint.velocity;
+            double vel = hinge_joint.velocity;
             float vel_ = (float)vel;
 
     return vel_;
     }
     void GetJointsStates()
-    {         
-        Lwaist_Joint0_r = CurrentRelativePosition(Lwaist_Joint[0]);
-        Lwaist_Joint1_r = CurrentRelativePosition(Lwaist_Joint[1]);    
-        Butt_Joint0_r = CurrentRelativePosition(Butt_Joint[0]);
-        RightThigh1_Joint0_r = CurrentRelativePosition(RightThigh1_Joint[0]);
-        RightThigh1_Joint1_r = CurrentRelativePosition(RightThigh1_Joint[1]);
-        RightThigh1_Joint2_r = CurrentRelativePosition(RightThigh1_Joint[2]);    
-        RightShin1_Joint0_r = CurrentRelativePosition(RightShin1_Joint[0]);
-        LeftThigh1_Joint0_r = CurrentRelativePosition(LeftThigh1_Joint[0]);
-        LeftThigh1_Joint1_r = CurrentRelativePosition(LeftThigh1_Joint[1]);
-        LeftThigh1_Joint2_r = CurrentRelativePosition(LeftThigh1_Joint[2]);
-        LeftShin1_Joint0_r = CurrentRelativePosition(LeftShin1_Joint[0]);
-        RightUarm1_Joint0_r = CurrentRelativePosition(RightUarm1_Joint[0]);
-        RightUarm1_Joint1_r = CurrentRelativePosition(RightUarm1_Joint[1]);
-        RightLarm_Joint0_r = CurrentRelativePosition(RightLarm_Joint[0]);
-        LeftUarm1_Joint0_r = CurrentRelativePosition(LeftUarm1_Joint[0]);
-        LeftUarm1_Joint1_r = CurrentRelativePosition(LeftUarm1_Joint[1]);
-        LeftLarm_Joint0_r = CurrentRelativePosition(LeftLarm_Joint[0]);
-        
-        Lwaist_Joint0_v = CurrentRelativeVelosity(Lwaist_Joint[0]);
-        Lwaist_Joint1_v = CurrentRelativeVelosity(Lwaist_Joint[1]);    
-        Butt_Joint0_v = CurrentRelativeVelosity(Butt_Joint[0]);
-        RightThigh1_Joint0_v = CurrentRelativeVelosity(RightThigh1_Joint[0]);
-        RightThigh1_Joint1_v = CurrentRelativeVelosity(RightThigh1_Joint[1]);
-        RightThigh1_Joint2_v = CurrentRelativeVelosity(RightThigh1_Joint[2]);    
-        RightShin1_Joint0_v = CurrentRelativeVelosity(RightShin1_Joint[0]);
-        LeftThigh1_Joint0_v = CurrentRelativeVelosity(LeftThigh1_Joint[0]);
-        LeftThigh1_Joint1_v = CurrentRelativeVelosity(LeftThigh1_Joint[1]);
-        LeftThigh1_Joint2_v = CurrentRelativeVelosity(LeftThigh1_Joint[2]);
-        LeftShin1_Joint0_v = CurrentRelativeVelosity(LeftShin1_Joint[0]);
-        RightUarm1_Joint0_v = CurrentRelativeVelosity(RightUarm1_Joint[0]);
-        RightUarm1_Joint1_v = CurrentRelativeVelosity(RightUarm1_Joint[1]);
-        RightLarm_Joint0_v = CurrentRelativeVelosity(RightLarm_Joint[0]);
-        LeftUarm1_Joint0_v = CurrentRelativeVelosity(LeftUarm1_Joint[0]);
-        LeftUarm1_Joint1_v = CurrentRelativeVelosity(LeftUarm1_Joint[1]);
-        LeftLarm_Joint0_v = CurrentRelativeVelosity(LeftLarm_Joint[0]);                                                                                                                                            
+    {
+        for (int i = 0; i < num_joints; i++) 
+        {
+            joint_position[i] = CurrentRelativePosition(indexed_joints[i]);
+            joint_velocity[i] = CurrentRelativeVelosity(indexed_joints[i]);
+        }                                                                                                                                                    
     }
     void StockJointsStates()
     {
-        int i = 0;
-        joints_data[i] = Lwaist_Joint0_r;
-        i += 2;
-        joints_data[i] = Lwaist_Joint1_r;    
-        i += 2;
-        joints_data[i] = Butt_Joint0_r;
-        i += 2;
-        joints_data[i] = RightThigh1_Joint0_r;
-        i += 2;
-        joints_data[i] = RightThigh1_Joint1_r;
-        i += 2;
-        joints_data[i] = RightThigh1_Joint2_r;    
-        i += 2;
-        joints_data[i] = RightShin1_Joint0_r;
-        i += 2;
-        joints_data[i] = LeftThigh1_Joint0_r;
-        i += 2;
-        joints_data[i] = LeftThigh1_Joint1_r;
-        i += 2;
-        joints_data[i] = LeftThigh1_Joint2_r;
-        i += 2;
-        joints_data[i] = LeftShin1_Joint0_r;
-        i += 2;
-        joints_data[i] = RightUarm1_Joint0_r;
-        i += 2;
-        joints_data[i] = RightUarm1_Joint1_r;
-        i += 2;
-        joints_data[i] = RightLarm_Joint0_r;
-        i += 2;
-        joints_data[i] = LeftUarm1_Joint0_r;
-        i += 2;
-        joints_data[i] = LeftUarm1_Joint1_r;
-        i += 2;
-        joints_data[i] = LeftLarm_Joint0_r;
-        
-        i = 1;
-        joints_data[i] = Lwaist_Joint0_v;
-        i += 2;
-        joints_data[i] = Lwaist_Joint1_v;    
-        i += 2;
-        joints_data[i] = Butt_Joint0_v;
-        i += 2;
-        joints_data[i] = RightThigh1_Joint0_v;
-        i += 2;
-        joints_data[i] = RightThigh1_Joint1_v;
-        i += 2;
-        joints_data[i] = RightThigh1_Joint2_v;    
-        i += 2;
-        joints_data[i] = RightShin1_Joint0_v;
-        i += 2;
-        joints_data[i] = LeftThigh1_Joint0_v;
-        i += 2;
-        joints_data[i] = LeftThigh1_Joint1_v;
-        i += 2;
-        joints_data[i] = LeftThigh1_Joint2_v;
-        i += 2;
-        joints_data[i] = LeftShin1_Joint0_v;
-        i += 2;
-        joints_data[i] = RightUarm1_Joint0_v;
-        i += 2;
-        joints_data[i] = RightUarm1_Joint1_v;
-        i += 2;
-        joints_data[i] = RightLarm_Joint0_v;
-        i += 2;
-        joints_data[i] = LeftUarm1_Joint0_v;
-        i += 2;
-        joints_data[i] = LeftUarm1_Joint1_v;
-        i += 2;
-        joints_data[i] = LeftLarm_Joint0_v;
+        for (int i = 0; i < num_joints; i++) 
+        {
+            joints_data[i*2] = joint_position[i];
+            joints_data[i*2+1] = joint_velocity[i];
+        }
     }
     void DiffJointsStates()
     {
         GetJointsStates();
         StockJointsStates();
-        for(int i=0; i<diff_joints_data.Length; ++i)
+        for(int i = 0; i < num_joints*2; i++)
         {
             diff_joints_data[i] = joints_data[i] - init_joints_data[i];
 
 
-            if (i % 2 == 0 && diff_joints_data[i] < -180)
-            {
-                diff_joints_data[i] = diff_joints_data[i] + 360;
-            }       
-            else if (i % 2 == 0 && diff_joints_data[i] > 180)
-            {
-                diff_joints_data[i] = diff_joints_data[i] - 360;
-            }
+            // if (i % 2 == 0 && diff_joints_data[i] < -180)
+            // {
+            //     diff_joints_data[i] = diff_joints_data[i] + 360;
+            // }       
+            // else if (i % 2 == 0 && diff_joints_data[i] > 180)
+            // {
+            //     diff_joints_data[i] = diff_joints_data[i] - 360;
+            // }
 
         }
+    }
+    void StockOutputData()
+    {
+        // more
+        
+        // j
+        for(int i = 8; i < num_joints*2; i++)
+        {
+            data_Out[i] = joints_data[i];
+            if(i% 2 == 0) data_Out[i] /= 180f;
+        }
+
+        // feet contact
+
+
+        // other
+        data_Out[dim_states+0] = reward;
+        data_Out[dim_states+1] = done;
     }
 }
