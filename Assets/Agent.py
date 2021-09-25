@@ -223,7 +223,7 @@ def objective(trial):
             os.environ['PYTHONHASHSEED'] = str(random_seed)
             np.random.seed(random_seed)
             rn.seed(random_seed)
-            env.seed(random_seed)
+            # env.seed(random_seed)
             tf.reset_default_graph()
             config = tf.ConfigProto(
                 intra_op_parallelism_threads=1, 
@@ -371,7 +371,7 @@ def objective(trial):
                     #-------------------------------
                     # In the middle of a episode, 2/2
                     #-------------------------------
-                    next_state = array_received[dim_unuse:dim_unuse+dim_states]
+                    next_state = array_received[dim_unuse:dim_unuse+dim_states] # clip from -5  to 5 
                     next_reward = array_received[dim_unuse+dim_states]
                     done = array_received[dim_unuse+dim_states+1]
                     action = agent.action_normalized(action)

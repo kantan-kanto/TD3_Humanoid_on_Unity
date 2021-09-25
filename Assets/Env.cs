@@ -9,12 +9,13 @@ using UnityEngine.Serialization;
 public class Env : MonoBehaviour
 {
     public GameObject HumanoidModel;
+    public GameObject Target;
     public GameObject Floor;
     FloorCol script;
     
-    const int num_objects = 17;
+    const int num_objects = 17+1;
     const int num_joints = 11;
-    const int dim_states = 8 + num_joints*2 + 2;
+    const int dim_states = 8 + num_joints*2 + 2; // more8 + j22 + feet_contact2 = 32
     const int dim_actions = num_joints;
 
     GameObject[] game_objects = new GameObject[num_objects];
@@ -37,6 +38,7 @@ public class Env : MonoBehaviour
     float[] joint_velocity = new float[num_joints];
     HingeJoint[] indexed_joints = new HingeJoint[num_joints];
 
+
     float reward;
     float done;
     float step;
@@ -47,9 +49,9 @@ public class Env : MonoBehaviour
     float[] joints_data = new float[num_joints*2];
     float[] init_joints_data = new float[num_joints*2];
     float[] diff_joints_data = new float[num_joints*2];
-    float[] data_Out = new float[dim_states+2];
+    float[] data_Out = new float[dim_states+2]; //34
     float[] actions = new float[dim_actions];
-    public int[] j = new int[2];
+
 
     public bool stop_flag;
     public string ip = "127.0.0.1";
@@ -112,6 +114,7 @@ public class Env : MonoBehaviour
         game_objects[14] = HumanoidModel.transform.Find( "left_uarm1" ).gameObject;
         game_objects[15] = HumanoidModel.transform.Find( "left_larm" ).gameObject;
         game_objects[16] = HumanoidModel.transform.Find( "left_hand" ).gameObject;
+        game_objects[17] = Target;
 
         for (int i = 0; i < num_objects; i++) 
         {
@@ -162,9 +165,7 @@ public class Env : MonoBehaviour
         script = Floor.GetComponent<FloorCol>();
 
 
-        GetPartsStates();
         StockPartsStates();
-        GetJointsStates();
         StockJointsStates();  
 
         parts_data.CopyTo(init_parts_data, 0);
@@ -173,12 +174,8 @@ public class Env : MonoBehaviour
 
     void FixedUpdate()
     {
-        GetPartsStates();
         StockPartsStates();
-        GetJointsStates();
         StockJointsStates();
-        // DiffJointsStates();
-
         StockOutputData();
 
 
@@ -220,8 +217,8 @@ public class Env : MonoBehaviour
         for (int i = 0; i < num_joints; i++) //(int i = 5; i < 6; i++)//
         {
             Motors[i] = indexed_joints[i].motor;
-            Motors[i].targetVelocity = Math.Sign(actions[i]) * 360f;
-            Motors[i].force = motor_power[i] * 410f * Math.Abs(actions[i]);
+            Motors[i].targetVelocity = Math.Sign(actions[i]) * motor_power[i] * 2f;
+            Motors[i].force = 0.41f * Math.Abs(actions[i]) * 1000f;
             Motors[i].freeSpin = false;
             indexed_joints[i].motor = Motors[i];
             indexed_joints[i].useMotor = true;
@@ -239,11 +236,6 @@ public class Env : MonoBehaviour
         //     indexed_joints[i].spring = Springs[i];
         //     Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
         // }
-
-        j = script.feet_contact;
-        if (j[0] != j[1]) Debug.Log(String.Format("Feet Contacts=[{0}, {1}], Ry={2:f}, Ly={3:f}, Step={4}", j[0], j[1], game_objects_y[7], game_objects_y[10], step));
-        j[0] = 0;
-        j[1] = 0;
 
 
         if ((countdown <= 0) || (stop_flag)) //achieve the goal
@@ -287,7 +279,8 @@ public class Env : MonoBehaviour
         #endif
     }
 
-    void GetPartsStates()
+
+    void StockPartsStates()
     {
         for (int i = 0; i < num_objects; i++) 
         {
@@ -304,10 +297,6 @@ public class Env : MonoBehaviour
             rigid_bodies_wy[i] = rigid_bodies[i].angularVelocity.y;
             rigid_bodies_wz[i] = rigid_bodies[i].angularVelocity.z;
         }
-    }
-
-    void StockPartsStates()
-    {
         for (int i = 0; i < num_objects; i++) 
         {
             parts_data[i*12+0] = game_objects_x[i];
@@ -343,14 +332,8 @@ public class Env : MonoBehaviour
     float CurrentRelativePosition(HingeJoint hinge_joint)
     {
         float pos = hinge_joint.angle;
-        if (pos < -180f)
-        {
-            pos += 360f;
-        }       
-        if (pos > 180f)
-        {
-            pos -= 360f;
-        }
+        if (pos < -180f) pos += 360f;   
+        if (pos > 180f) pos -= 360f;
         return pos;
     }
 
@@ -360,17 +343,14 @@ public class Env : MonoBehaviour
         return vel;
     }
 
-    void GetJointsStates()
+    void StockJointsStates()
     {
         for (int i = 0; i < num_joints; i++) 
         {
             joint_position[i] = CurrentRelativePosition(indexed_joints[i]);
             joint_velocity[i] = CurrentRelativeVelosity(indexed_joints[i]);
-        }                                                                                                                                                    
-    }
+        }
 
-    void StockJointsStates()
-    {
         for (int i = 0; i < num_joints; i++) 
         {
             joints_data[i*2] = joint_position[i];
@@ -378,29 +358,41 @@ public class Env : MonoBehaviour
         }
     }
 
-    void DiffJointsStates()
-    {
-        GetJointsStates();
-        StockJointsStates();
-        for(int i = 0; i < num_joints*2; i++)
-        {
-            diff_joints_data[i] = joints_data[i] - init_joints_data[i];
-        }
-    }
-
     void StockOutputData()
     {
-        // more
+        // more 8
+        double angle_to_target = Math.Atan2(game_objects_z[17] - game_objects_z[0], game_objects_x[17] - game_objects_x[0]);
+        double yaw = game_objects_ry[0] * Math.PI / 180f;
+        Vector2 torso_v = new Vector2(rigid_bodies_vx[0], rigid_bodies_vz[0]);
+        double torso_v_length = torso_v.magnitude;
+        double torso_v_angle = Math.Atan2(rigid_bodies_vx[0] - game_objects_z[0], rigid_bodies_vx[0]);
+        float sin_angle_to_target = (float)Math.Sin(angle_to_target);
+        float cos_angle_to_target = (float)Math.Cos(angle_to_target);
+        float vx = (float)(torso_v_length * Math.Cos(torso_v_angle - yaw));
+        float vy = rigid_bodies_vy[0];
+        float vz = (float)(torso_v_length * Math.Sin(torso_v_angle - yaw));
+        data_Out[0] = game_objects_y[0] - init_parts_data[0*12+1];
+        data_Out[1] = sin_angle_to_target;
+        data_Out[2] = cos_angle_to_target;
+        data_Out[3] = 0.3f * vx;
+        data_Out[4] = 0.3f * vy;
+        data_Out[5] = 0.3f * vz;
+        data_Out[6] = game_objects_rx[0] * (float)Math.PI / 180f;
+        data_Out[7] = game_objects_rz[0] * (float)Math.PI / 180f; 
         
-        // j
-        for(int i = 8; i < num_joints*2; i++)
+        // j 11 * 2
+        for(int i = 0; i < num_joints*2; i++)
         {
-            data_Out[i] = joints_data[i];
-            if(i% 2 == 0) data_Out[i] /= 180f;
+            data_Out[i+8] = joints_data[i];
+            if(i % 2 == 0) data_Out[i] /= 180f;
+            if(i % 2 == 1) data_Out[i] /= 600f; // Motors[i].targetVelocity = Math.Sign(actions[i]) * motor_power[i] * 2f;
         }
 
-        // feet contact
-
+        // feet contact 2
+        data_Out[dim_states-2] = script.feet_contact[0];
+        data_Out[dim_states-1] = script.feet_contact[1];
+        // Debug.Log(String.Format("Feet Contacts=[{0}, {1}], Ry={2:f}, Ly={3:f}, Step={4}", data_Out[dim_states-2], data_Out[dim_states-1], game_objects_y[7], game_objects_y[10], step));
+        script.colList.Clear();
 
         // other
         data_Out[dim_states+0] = reward;
