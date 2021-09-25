@@ -4,12 +4,13 @@ using System.Net.Sockets;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Serialization;
-//
 
 
 public class Env : MonoBehaviour
 {
     public GameObject HumanoidModel;
+    public GameObject Floor;
+    FloorCol script;
     
     const int num_objects = 17;
     const int num_joints = 11;
@@ -48,6 +49,7 @@ public class Env : MonoBehaviour
     float[] diff_joints_data = new float[num_joints*2];
     float[] data_Out = new float[dim_states+2];
     float[] actions = new float[dim_actions];
+    public int[] j = new int[2];
 
     public bool stop_flag;
     public string ip = "127.0.0.1";
@@ -116,6 +118,7 @@ public class Env : MonoBehaviour
             rigid_bodies[i] = game_objects[i].GetComponent<Rigidbody>();
         }
 
+        HingeJoint[] Uwaist_Joint = game_objects[2].GetComponents<HingeJoint>();
         HingeJoint[] Lwaist_Joint = game_objects[3].GetComponents<HingeJoint>();
         HingeJoint[] Butt_Joint = game_objects[4].GetComponents<HingeJoint>();
         HingeJoint[] RightThigh1_Joint = game_objects[5].GetComponents<HingeJoint>();
@@ -127,8 +130,8 @@ public class Env : MonoBehaviour
         HingeJoint[] LeftUarm1_Joint = game_objects[14].GetComponents<HingeJoint>();
         HingeJoint[] LeftLarm_Joint = game_objects[15].GetComponents<HingeJoint>();
 
-        indexed_joints[0] = Lwaist_Joint[0];         // y -30 75   y-1 -75 30
-        indexed_joints[1] = Lwaist_Joint[1];         // z -45 45       -45 45
+        indexed_joints[0] = Uwaist_Joint[0];         // z -45 45       -45 45
+        indexed_joints[1] = Lwaist_Joint[0];         // y -75 30?      -75 30
         indexed_joints[2] = Butt_Joint[0];           // x -35 35       -35 35
 
         indexed_joints[3] = RightThigh1_Joint[0];    //x- -25  5               
@@ -156,6 +159,7 @@ public class Env : MonoBehaviour
         done = 0;
         step = 0;
         countdown = 1000;
+        script = Floor.GetComponent<FloorCol>();
 
 
         GetPartsStates();
@@ -193,8 +197,8 @@ public class Env : MonoBehaviour
         }
 
         // HingeJoint General
-        float[] min_limit = new float[num_joints]   {-75, -45, -35, -120, -160, -120, -160, -85, -90, -85, -90}; 
-        float[] max_limit = new float[num_joints]   {30, 45, 35, 20, 2, 20, 2, 60, 50, 60, 50};
+        float[] min_limit = new float[num_joints]   {-45, -75, -35, -120, -160, -120, -160, -85, -90, -85, -90}; 
+        float[] max_limit = new float[num_joints]   {45, 30, 35, 20, 2, 20, 2, 60, 50, 60, 50};
         for (int i = 0; i < num_joints; i++)
         {
             JointLimits[] Limits = new JointLimits[num_joints];
@@ -221,7 +225,7 @@ public class Env : MonoBehaviour
             Motors[i].freeSpin = false;
             indexed_joints[i].motor = Motors[i];
             indexed_joints[i].useMotor = true;
-            Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
+            // Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
         }
 
         // HingeJoint Spring
@@ -236,13 +240,18 @@ public class Env : MonoBehaviour
         //     Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
         // }
 
+        j = script.feet_contact;
+        if (j[0] != j[1]) Debug.Log(String.Format("Feet Contacts=[{0}, {1}], Ry={2:f}, Ly={3:f}, Step={4}", j[0], j[1], game_objects_y[7], game_objects_y[10], step));
+        j[0] = 0;
+        j[1] = 0;
+
 
         if ((countdown <= 0) || (stop_flag)) //achieve the goal
         {
             done = 9;
             Quit();
         }
-        else if (step > 1024 || game_objects_y[0] < -0.6f)
+        else if (step > 1024 || game_objects_y[0] < 0.2f)
         {
             reward += 1;
             done = 1;
