@@ -37,10 +37,10 @@ class DDPG():
                 theta,
                 sigma_init,
                 sigma,
-                hidden_layers_f,
-                lr_f,
+                # hidden_layers_f,
+                # lr_f,
                 TD3,
-                icm,
+                # icm,
                 ):
         self.dim_states = dim_states
         self.dim_actions = dim_actions
@@ -63,11 +63,11 @@ class DDPG():
         self.activ_a = activ_a
         self.lr_a = lr_a
         self.lr_c = lr_c
-        self.lr_f = lr_f
+        # self.lr_f = lr_f
         self.optim_a = Adam(lr=self.lr_a) if optim_a == 'Adam' else SGD(lr=self.lr_a)
         self.optim_c = Adam(lr=self.lr_c) if optim_c == 'Adam' else SGD(lr=self.lr_c)
         self.TD3 = TD3
-        self.icm = icm
+        # self.icm = icm
 
         self.tau = tau # 0.001
         self.gamma = 0.99
@@ -82,10 +82,10 @@ class DDPG():
         self.paramas_noise_sigma = 1.0
         self.prev_weights_dict = {}
 
-        if type(hidden_layers_f) is int:
-            self.hidden_layers_f = self.HiddenLayersSelector(hidden_layers_f)
-        elif type(hidden_layers_f) is list:
-            self.hidden_layers_f = self.HiddenLayersCreator(hidden_layers_f)
+        # if type(hidden_layers_f) is int:
+        #     self.hidden_layers_f = self.HiddenLayersSelector(hidden_layers_f)
+        # elif type(hidden_layers_f) is list:
+        #     self.hidden_layers_f = self.HiddenLayersCreator(hidden_layers_f)
         
         #-------------------------------
         # Compile CriticNetwork
@@ -178,21 +178,21 @@ class DDPG():
 
             self.target_critic_2_network = self.build_critic_network()
 
-        # -------------------------------
-        # Compile Forward model from ICM
-        # -------------------------------
-        if self.icm:
-            self.forward = self.build_forward()
+        # # -------------------------------
+        # # Compile Forward model from ICM
+        # # -------------------------------
+        # if self.icm:
+        #     self.forward = self.build_forward()
 
-            input_state = Input(shape=(self.dim_states,))
-            input_action = Input(shape=(self.dim_actions,))
-            next_state_pred = self.forward([input_state, input_action])
-            self.forward_model = Model(inputs = [input_state, input_action], 
-                                    outputs = next_state_pred)
-            # print('Forward model Summary:')
-            # self.forward_model.summary()
-            self.forward_model.compile(optimizer=Adam(lr=self.lr_f),
-                                    loss='mean_squared_error')  
+        #     input_state = Input(shape=(self.dim_states,))
+        #     input_action = Input(shape=(self.dim_actions,))
+        #     next_state_pred = self.forward([input_state, input_action])
+        #     self.forward_model = Model(inputs = [input_state, input_action], 
+        #                             outputs = next_state_pred)
+        #     # print('Forward model Summary:')
+        #     # self.forward_model.summary()
+        #     self.forward_model.compile(optimizer=Adam(lr=self.lr_f),
+        #                             loss='mean_squared_error')  
 
 
     # def get_neg_J(self, input_state):
@@ -305,25 +305,25 @@ class DDPG():
         self.target_critic_2_network.set_weights(target_weights)
 
 
-    def build_forward(self): # from ICM
-        input_state_layer = Input(shape=(self.dim_states,))
-        input_action_layer = Input(shape=(self.dim_actions,))
-        x = Concatenate(axis=-1)([input_state_layer, input_action_layer])
-        x = Dense(units=self.hidden_layers_f[0], kernel_initializer=self.kernel_initializer)(x)
-        x = Activation("relu")(x)
-        for i in range(1, len(self.hidden_layers_f)):
-            x = Dense(units=self.hidden_layers_f[i], kernel_initializer=self.kernel_initializer, kernel_regularizer=regularizers.l2(l=self.l2_reg_c))(x)
-            # if int(self.BN_f[i]): x = BatchNormalization()(x)
-            x = Activation("relu")(x)
-        x = Dense(units=self.dim_states, kernel_initializer='glorot_normal')(x)
-        # if int(self.BN_f[-1]): x = BatchNormalization()(x)
-        output_layer = Activation("linear")(x)
+    # def build_forward(self): # from ICM
+    #     input_state_layer = Input(shape=(self.dim_states,))
+    #     input_action_layer = Input(shape=(self.dim_actions,))
+    #     x = Concatenate(axis=-1)([input_state_layer, input_action_layer])
+    #     x = Dense(units=self.hidden_layers_f[0], kernel_initializer=self.kernel_initializer)(x)
+    #     x = Activation("relu")(x)
+    #     for i in range(1, len(self.hidden_layers_f)):
+    #         x = Dense(units=self.hidden_layers_f[i], kernel_initializer=self.kernel_initializer, kernel_regularizer=regularizers.l2(l=self.l2_reg_c))(x)
+    #         # if int(self.BN_f[i]): x = BatchNormalization()(x)
+    #         x = Activation("relu")(x)
+    #     x = Dense(units=self.dim_states, kernel_initializer='glorot_normal')(x)
+    #     # if int(self.BN_f[-1]): x = BatchNormalization()(x)
+    #     output_layer = Activation("linear")(x)
 
-        model = Model(inputs = [input_action_layer, input_state_layer], outputs = output_layer)
-        # model = Model(inputs = input_layer, outputs = output_layer)
-        #print('ICM Forward Summary:')
-        #model.summary()
-        return model
+    #     model = Model(inputs = [input_action_layer, input_state_layer], outputs = output_layer)
+    #     # model = Model(inputs = input_layer, outputs = output_layer)
+    #     #print('ICM Forward Summary:')
+    #     #model.summary()
+    #     return model
 
 
     def action_predict(self, state, epsilon, phase='learning'):
@@ -428,205 +428,6 @@ class DDPG():
 
     def HiddenLayersSelector(self, choice):
         if   choice == 0: hidden_layers = [20, 15, 10]
-        elif choice == 1: hidden_layers = [40, 30, 20]
-        elif choice == 2: hidden_layers = [64, 64]
-        elif choice == 3: hidden_layers = [100, 100]
-        elif choice == 4: hidden_layers = [100, 50, 25]
-        elif choice == 5: hidden_layers = [400, 300]
-        elif choice == 6: hidden_layers = [400, 300, 300]
-        elif choice == 7: hidden_layers = [400, 300, 300, 300]
-        return hidden_layers
-
-
-    def HiddenLayersCreator(self, choice):
-        base_seeds = [4, 3, 2, 1, 0]
-        mult = [5, 10, 16, 20, 25, 32, 40, 50, 64, 80, 100]
-        base_layers_dict = {}
-        for base_layers in itertools.combinations_with_replacement(base_seeds, choice[2]-1):
-            base_layers = [i for i in base_layers if i != 0]
-            base_layers = np.array(base_layers)
-            base_layers = np.insert(base_layers, 0, 4)  
-            num_p = mult[0] * base_layers[0] + mult[0] * base_layers[0]
-            for j in range(1, len(base_layers)):
-                num_p += mult[0] * base_layers[j-1] * mult[0] * base_layers[j] + mult[0] * base_layers[j]
-            base_layers_dict[num_p+base_layers.size/10] = base_layers
-        base_layers_dict_keys = list(base_layers_dict.keys())
-        base_layers_dict_keys.sort()
-        base_layers_list = []
-        for k in base_layers_dict_keys:
-            base_layers_list.append(base_layers_dict[k])
-        base_layers_list = base_layers_list[1:]
-        hidden_layers = base_layers_list[choice[0]] * mult[choice[1]]
-        return hidden_layers
-
-
-class GaussianPolicy():
-    def __init__(
-                self, 
-                dim_states, 
-                dim_actions,
-                range_action,
-                lr_a,
-                lr_c,
-                activ_a,
-                hidden_layers_a,
-                hidden_layers_c,
-                hidden_layers_f,
-                lr_f, 
-                ):
-        self.dim_states = dim_states
-        self.dim_actions = dim_actions
-        self.range_action = range_action
-        self.lr_a = lr_a
-        self.lr_c = lr_c
-        self.activ_a = activ_a
-        self.hidden_layers_a = self.HiddenLayersSelector(hidden_layers_a)
-        self.hidden_layers_c = self.HiddenLayersSelector(hidden_layers_c)
-        self.gamma = 0.99
-        self.hidden_layers_f=hidden_layers_f
-        self.lr_f=lr_f 
-        
-        #-------------------------------
-        # Compile CriticNetwork
-        #-------------------------------
-        self.critic_network = self.build_critic_network()
-
-        input_state = Input(shape=(self.dim_states,))
-        output_target = self.critic_network(input_state)
-        
-        self.critic_network_model = Model(inputs = [input_state],
-                                          outputs = [output_target])
-        # print('CriticNetwork model Summary:')
-        # self.critic_network_model.summary()
-        self.critic_network_model.compile(optimizer=Adam(lr=self.lr_a),
-                                          loss='mean_squared_error')  
-
-        #-------------------------------
-        # Compile ActorNetwork
-        #-------------------------------    
-        #self.critic_network.trainable = False
-        self.actor_network = self.build_actor_network()
-
-        input_state = Input(shape=(self.dim_states,))
-        input_action = Input(shape=(self.dim_actions,)) 
-        input_next_target = Input(shape=(1,))
-
-        output_layer = self.actor_network(input_state)
-
-        value = self.critic_network(input_state)
-        advantage = input_next_target - value   
-  
-        partial_loss_func = partial(self.loss_func,
-                                    input_state=input_state,
-                                    input_action=input_action,
-                                    input_next_target=input_next_target)
-        partial_loss_func.__name__ = 'neg_nabla_J'
-
-        self.actor_network_model = Model(inputs = [input_state, input_action, input_next_target],
-                                         outputs = [output_layer])
-        # print('ActorNetwork model Summary:')
-        # self.actor_network_model.summary()
-        self.actor_network_model.compile(optimizer=RMSprop(lr=self.lr_c), 
-                                         loss=partial_loss_func)
-
-        # -------------------------------
-        # Compile Forward model from ICM
-        # -------------------------------
-        self.forward = self.build_forward()
-
-        input_state = Input(shape=(self.dim_states,))
-        input_action = Input(shape=(self.dim_actions,))
-        next_state_pred = self.forward([input_state, input_action])
-        self.forward_model = Model(inputs = [input_state, input_action], 
-                                   outputs = next_state_pred)
-        # print('Forward model Summary:')
-        # self.forward_model.summary()
-        self.forward_model.compile(optimizer=Adam(lr=self.lr_f),
-                                   loss='mean_squared_error')  
-
-
-    def loss_func(self, y_true, y_pred, input_state, input_action, input_next_target):
-        mu = Lambda(lambda x: x[:, :self.dim_actions])(y_pred)
-        log_var = Lambda(lambda x: x[:, self.dim_actions:])(y_pred)
-        advantage = input_next_target - self.critic_network(input_state) 
-        return K.mean(0.5 * 
-                        ( 
-                            # log_var + K.square(input_action - mu) / K.exp((K.maximum(log_var, K.epsilon())) 
-                            log_var + K.square(input_action - mu) * K.exp(-log_var)
-                        ) * advantage
-                     )
-
-
-    def build_actor_network(self): # Action
-        input_layer = Input(shape=(self.dim_states,))
-        x = Dense(self.hidden_layers_a[0])(input_layer)
-        #x = BatchNormalization()(x)
-        x = Activation(self.activ_a[0])(x)
-        for i in range(1, len(self.hidden_layers_a)):
-            x = Dense(self.hidden_layers_a[i])(x)
-            #x = BatchNormalization()(x)
-            x = Activation(self.activ_a[0])(x)
-        x = Dense(self.dim_actions * 2)(x)
-        output_layer = Activation(self.activ_a[-1])(x)
-        # output_layer = Lambda(lambda x: x * self.range_action)(output_layer)
-
-        model = Model(inputs = input_layer, outputs = output_layer)
-        print('ActorNetwork Summary:')
-        model.summary()
-        return model
-
-
-    def build_critic_network(self): # Value
-        input_layer = Input(shape=(self.dim_states,))
-        x = Dense(self.hidden_layers_c[0])(input_layer)
-        x = Activation("tanh")(x)
-        for i in range(1, len(self.hidden_layers_c)):
-            x = Dense(self.hidden_layers_c[i])(x)
-            #x = BatchNormalization()(x)
-            x = Activation("tanh")(x)
-        x = Dense(1)(x)
-        output_layer = Activation("linear")(x)
-
-        model = Model(inputs = input_layer, outputs = output_layer)
-        print('CriticNetwork Summary:')
-        model.summary()
-        return model
-
-        
-    def build_forward(self): # from ICM
-        input_state_layer = Input(shape=(self.dim_states,))
-        input_action_layer = Input(shape=(self.dim_actions,))
-        x = Concatenate(axis=-1)([input_state_layer, input_action_layer])
-        x = Dense(units=self.hidden_layers_f[0], kernel_initializer=self.kernel_initializer)(x)
-        x = Activation("relu")(x)
-        for i in range(1, len(self.hidden_layers_f)):
-            x = Dense(units=self.hidden_layers_f[i], kernel_initializer=self.kernel_initializer, kernel_regularizer=regularizers.l2(l=self.l2_reg_c))(x)
-            # if int(self.BN_f[i]): x = BatchNormalization()(x)
-            x = Activation("relu")(x)
-        x = Dense(units=self.dim_states, kernel_initializer='glorot_normal')(x)
-        # if int(self.BN_f[-1]): x = BatchNormalization()(x)
-        output_layer = Activation("linear")(x)
-
-        model = Model(inputs = [input_action_layer, input_state_layer], outputs = output_layer)
-        # model = Model(inputs = input_layer, outputs = output_layer)
-        #print('ICM Forward Summary:')
-        #model.summary()
-        return model  
-
-
-    def action_predict(self, state):
-        state = state.reshape((1,-1))
-        output = self.actor_network.predict(state)
-        mu, log_var = output[0][:self.dim_actions], output[0][self.dim_actions:]
-        action = np.random.normal(loc=mu, 
-                                  scale=np.clip(np.sqrt(np.exp(log_var)), 1e-7, None)
-                                 ).astype(np.float32)
-        action *= self.range_action
-        return action
-
-
-    def HiddenLayersSelector(self, choice):
-        if choice == 0: hidden_layers = [20, 15, 10]
         elif choice == 1: hidden_layers = [40, 30, 20]
         elif choice == 2: hidden_layers = [64, 64]
         elif choice == 3: hidden_layers = [100, 100]
