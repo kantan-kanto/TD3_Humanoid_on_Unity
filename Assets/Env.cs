@@ -13,7 +13,7 @@ public class Env : MonoBehaviour
     public GameObject Floor;
     FloorCol script;
     
-    const int num_objects = 17+1;
+    const int num_objects = 17 + 1; // + Target
     const int num_joints = 11;
     const int dim_states = 8 + num_joints*2 + 2; // more8 + j22 + feet_contact2 = 32
     const int dim_actions = num_joints;
@@ -56,16 +56,17 @@ public class Env : MonoBehaviour
     float[] max_limit = new float[num_joints]   {45, 30, 35, 20, 2, 20, 2, 60, 50, 60, 50};
     float[] motor_power = new float[num_joints] {100, 100, 100, 300, 200, 300, 200,  75,  75,  75,  75};
 
+    float[] actions = new float[dim_actions];
+    float potential_old;
     float reward;
     float done;
     float step;
-    float countdown;
 
-    float[] data_Out = new float[dim_states+2]; //34
-    float[] actions = new float[dim_actions];
 
+    float[] data_Out = new float[dim_states+2]; // 34 = more8 + j22 + feet_contact2 + reward + done
 
     public bool stop_flag;
+    public int countdown = 100000;
     public string ip = "127.0.0.1";
     public int port = 60000;
     private Socket client;
@@ -97,7 +98,7 @@ public class Env : MonoBehaviour
         //allocate and receive bytes
         byte[] bytes = new byte[4000];
         int idxUsedBytes = client.Receive(bytes);
-        //print(idxUsedBytes + " new bytes received.");
+        // print(idxUsedBytes + " new bytes received.");
 
         //convert bytes to floats
         floatsReceived = new float[idxUsedBytes/4];
@@ -169,37 +170,29 @@ public class Env : MonoBehaviour
         // indexed_joints[15] = LeftUarm1_Joint[1];  //z- -85  60      -85 60
         indexed_joints[10] = LeftLarm_Joint[0];      //x  -50  90  x-1 -90 50
 
-
-        reward = 0;
-        done = 0;
-        step = 0;
-        countdown = 1000;
         script = Floor.GetComponent<FloorCol>();
-
 
         StockStates();
         StockInitStates();
+        SetInitStates(); // for formatting action potential_old reward done step
     }
 
     void FixedUpdate()
     {
         StockStates();
+        CalcReward(actions);
         StockOutputData();
-
-
-        // actions = ServerRequest(data_Out);
-        System.Random cRandom = new System.Random();
-        for (int i = 0; i < num_joints; i++)
-        {
-            double dRandom = (cRandom.NextDouble() * 2.0) - 1.0;
-            float fRandom = (float)dRandom;
-            // if(i != 5 && i != 9){
-            //     actions[i] = 0f; //fRandom; //-1f;
-            // } else {
-            //     actions[i] = -1f; //fRandom; //-1f;
-            // }
-            actions[i] = fRandom;
-        }
+        actions = ServerRequest(data_Out);
+        // Debug.Log(actions);
+        // System.Random cRandom = new System.Random();
+        // for (int i = 0; i < num_joints; i++)
+        // {
+        //     double dRandom = (cRandom.NextDouble() * 2.0) - 1.0;
+        //     float fRandom = (float)dRandom;
+        //     // if(i != 5 && i != 9) actions[i] = 0f; //fRandom; //-1f;
+        //     // else actions[i] = -1f; //fRandom; //-1f;
+        //     actions[i] = fRandom;
+        // }
 
         // HingeJoint General
         for (int i = 0; i < num_joints; i++)
@@ -242,41 +235,37 @@ public class Env : MonoBehaviour
         //     Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
         // }
 
-        Debug.Log(String.Format("Step={3}, iRx:{0:f}, iRy:{1:f}, iRz:{2:f} ", init_game_objects_rx[0], init_game_objects_ry[0], init_game_objects_rz[0], step));
-        Debug.Log(String.Format("Step={3}, Rx:{0:f}, Ry:{1:f}, Rz:{2:f}", game_objects_rx[0], game_objects_ry[0], game_objects_rz[0], step));
-        // Debug.Log(String.Format("Step={3}, dRx:{0:f}, dRy:{1:f}, dRz:{2:f}", NormalizedAngle(game_objects_rx[0]- init_game_objects_rx[0]), NormalizedAngle(game_objects_ry[0] - init_game_objects_ry[0]), NormalizedAngle(game_objects_rz[0] - init_game_objects_rz[0]), step));
+        // Debug.Log(String.Format("Step={3}, iRx:{0:f}, iRy:{1:f}, iRz:{2:f} ", init_game_objects_rx[0], init_game_objects_ry[0], init_game_objects_rz[0], step));
+        // Debug.Log(String.Format("Step={3}, Rx:{0:f}, Ry:{1:f}, Rz:{2:f}", game_objects_rx[0], game_objects_ry[0], game_objects_rz[0], step));
 
         if ((countdown <= 0) || (stop_flag)) //achieve the goal
         {
             done = 9;
             Quit();
         }
-        else if (step > 1024 || game_objects_y[0] < 0.2f)
+        else if (step > 1024 || game_objects_y[0] < 0.78f)
         {
-            reward += 1;
             done = 1;
             Reset();
         }
         else
         {
-            reward += 1;
             step += 1;
         } 
     }
 
     void Reset()
     {
+        CalcReward(actions);
         StockOutputData();
-        // actions = ServerRequest(data_Out);
+        actions = ServerRequest(data_Out);
         SetInitStates();
         countdown -= 1;
-        reward = 0;
-        done = 0;
-        step = 0;
     }
 
     void Quit() 
     {
+        // CalcReward(actions);
         StockOutputData();
         // ServerRequest(data_Out);
 
@@ -315,13 +304,13 @@ public class Env : MonoBehaviour
     float NormalizedAngle(float angle, string type)
     {
         float semicircle = 0f;
-        if (type == "degree") {
-            semicircle = 180f;
-        } else if (type == "euler") {
-            semicircle = (float)Math.PI;
-        }         
+
+        if (type == "degree") semicircle = 180f;
+        else if (type == "euler") semicircle = (float)Math.PI;
+
         while (angle < -semicircle) angle += 2f * semicircle;   
         while (angle > semicircle) angle -= 2f * semicircle;
+
         return angle;
     }
 
@@ -355,7 +344,6 @@ public class Env : MonoBehaviour
         joint_velocity.CopyTo(init_joint_velocity, 0);
     }
 
-
     void SetInitStates()
     {
         for (int i = 0; i < num_objects; i++) 
@@ -364,7 +352,14 @@ public class Env : MonoBehaviour
             game_objects[i].transform.eulerAngles = new Vector3(init_game_objects_rx[i], init_game_objects_ry[i], init_game_objects_rz[i]);
             rigid_bodies[i].velocity = new Vector3(init_rigid_bodies_vx[i], init_rigid_bodies_vy[i], init_rigid_bodies_vz[i]);
             rigid_bodies[i].angularVelocity = new Vector3(init_rigid_bodies_wx[i], init_rigid_bodies_wy[i], init_rigid_bodies_wz[i]);
-        }        
+        }
+        actions = new float[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        Vector2 init_walk_target = new Vector2(init_game_objects_x[17] - init_game_objects_x[0], init_game_objects_z[17] - init_game_objects_z[0]);
+        float init_walk_target_length = init_walk_target.magnitude;
+        potential_old = init_walk_target_length / Time.fixedDeltaTime;
+        reward = 0;
+        done = 0;
+        step = 0;
         // Floor.transform.position = new Vector3(0f, -1.57f, 0f);
         // Floor.transform.eulerAngles = new Vector3(0f, 0f, 0f);
         // FloorRB.velocity = new Vector3(0f, 0f, 0f);
@@ -410,5 +405,32 @@ public class Env : MonoBehaviour
         // other
         data_Out[dim_states+0] = reward;
         data_Out[dim_states+1] = done;
+    }
+
+    void CalcReward(float[] a)
+    {
+        // alive bonus
+        if (game_objects_y[0] > 0.78f) reward += 2f;
+        else reward -= 1f;
+
+        // progress
+        Vector2 walk_target = new Vector2(game_objects_x[17] - game_objects_x[0], game_objects_z[17] - game_objects_z[0]);
+        float walk_target_length = walk_target.magnitude;
+        float potential = walk_target_length / Time.fixedDeltaTime - potential_old;
+        reward -= potential;
+        potential_old = potential;
+
+        for(int i = 0; i < num_joints; i++)
+        {
+            // electricity cost
+            reward -= 2.0f * Math.Abs(a[i] * joint_velocity[i] / 600f) / num_joints;
+            reward -= 0.1f * (float)Math.Pow(a[i], 2) / num_joints;
+
+            // joints at limit cost
+            float center = (max_limit[i] + min_limit[i]) / 2f;
+            float range = (max_limit[i] - min_limit[i]) / 2f;
+            float normalized_position = Math.Abs((joint_position[i] - center) / range);
+            if(normalized_position > 0.99) reward -= 0.1f * normalized_position;
+        }
     }
 }

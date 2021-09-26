@@ -23,7 +23,7 @@ n_trials = 5
 step = None # To pickle memory
 
 
-def objective():
+def objective(trial):
     #-------------------------------
     # Socket
     #-------------------------------   
@@ -46,7 +46,7 @@ def objective():
     #-------------------------------
     # Environment Setting
     #-------------------------------   
-    run_id = 0 #trial.trial_id #trial.number #datetime.now().strftime('%Y%m%d%H%M%S-%f') 
+    run_id = trial.trial_id #trial.number #datetime.now().strftime('%Y%m%d%H%M%S-%f') 
     save = False
     R_note = 1000
     load = False
@@ -102,15 +102,64 @@ def objective():
             lr_c = 10 ** -3 #lr_a * 10 ** trial.suggest_discrete_uniform('lr_c_mult', 0, 0.5, 0.5)
             tau = 5 * 10 ** -3 #trial.suggest_int('tau',-4, -2)
             batch_size = 100 #2 ** trial.suggest_int('batch_size', 5, 7)
-            sigma =  0.1 #trial.suggest_discrete_uniform('sigma', 0.1, 1.0, 0.05) if perturbation in [1, 4] else 0.1
+            sigma =  trial.suggest_discrete_uniform('sigma', 0.1, 1.0, 0.05) if perturbation in [1, 4] else 0.1
+        else:
+            hidden_layers_a = trial.suggest_int('hidden_layers_a', 1, 6) if l_lim else None
+            hidden_layers_c = trial.suggest_int('hidden_layers_c', 5, 6) if l_lim else None
+            lr_a = 10 ** trial.suggest_discrete_uniform('lr_a', -4.5, -3, 0.5)
+            lr_c = lr_a * 10 ** trial.suggest_discrete_uniform('lr_c_mult', 0, 0.5, 0.5)
+            tau = 10 ** -3 #trial.suggest_int('tau',-4, -2)
+            batch_size = 2 ** trial.suggest_int('batch_size', 5, 7)
+            sigma = trial.suggest_discrete_uniform('sigma', 0.1, 1.0, 0.05) if perturbation == [0, 1, 4] else 1
 
-        random_seed = 2 #trial.suggest_int('random_seed', 0, 9) if fix_seed else None
+        random_seed = trial.suggest_int('random_seed', 0, 9) if fix_seed else None
         rescale = 10 ** 0 #trial.suggest_discrete_uniform('rescale', -2, 0, 0.5)
         epsilon = 1 #trial.suggest_discrete_uniform('epsilon', 1.0, 1.0, 0.1) if perturbation in [0, 1] else 1
-        EXPLORE = 10 ** 6 #trial.suggest_discrete_uniform('EXPLORE', 6, 8, 0.5) if perturbation in [0, 1] else 1
-        theta = 0 #trial.suggest_discrete_uniform('theta', 0.1, 0.9, 0.05) if perturbation in [1, 4] else 
+        EXPLORE = 10 ** trial.suggest_discrete_uniform('EXPLORE', 6, 8, 0.5) if perturbation in [0, 1] else 1
+        theta = trial.suggest_discrete_uniform('theta', 0.1, 0.9, 0.05) if perturbation in [1, 4] else 0
         sigma_init = 0.017 if perturbation == 3 else None
-        nb_rollout_steps = 1 #int(2 ** trial.suggest_discrete_uniform('nb_rollout_steps', 8, 10, 1)) if perturbation in [3, 4] else 
+        nb_rollout_steps = int(2 ** trial.suggest_discrete_uniform('nb_rollout_steps', 8, 10, 1)) if perturbation in [3, 4] else 1
+    else:
+        perturbation = 0 #perturbation_dict['noisy_dense']
+        PER = False
+        TD3 = True
+        l_lim = True
+        L2_reg = False
+        BN = False
+        icm = False
+        fix_seed = True
+
+        con = sql.connect('./db/'+model+'-'+env_id+'-'+study_name[0:2]+'.db')
+        df_trial_params = pd.read_sql("select trial_id, param_name, param_value from trial_params", con)
+        df_trial_params = df_trial_params.pivot(index='trial_id', columns='param_name', values='param_value')
+        load_id = int(study_name[3:])
+
+        if TD3:
+            hidden_layers_a = 5 #trial.suggest_int('hidden_layers_a', 1, 6) if l_lim else None
+            hidden_layers_c = 5 #trial.suggest_int('hidden_layers_c', 5, 6) if l_lim else None
+            lr_a = 10 ** -3 #trial.suggest_discrete_uniform('lr_a', -4.5, -3, 0.5)
+            lr_c = 10 ** -3 #lr_a * 10 ** trial.suggest_discrete_uniform('lr_c_mult', 0, 0.5, 0.5)
+            tau = 5 * 10 ** -3 #trial.suggest_int('tau',-4, -2)
+            batch_size = 100 #2 ** trial.suggest_int('batch_size', 5, 7)
+            sigma =  df_trial_params.at[load_id, 'sigma'] if perturbation in [1, 4] else 0.1
+        else:
+            random_seed = int(df_trial_params.at[load_id, 'random_seed']) if fix_seed else None
+            hidden_layers_a = int(df_trial_params.at[load_id, 'hidden_layers_a']) if l_lim else None
+            hidden_layers_c = int(df_trial_params.at[load_id, 'hidden_layers_c']) if l_lim else None
+            lr_a = 10 ** df_trial_params.at[load_id, 'lr_a']
+            lr_c = lr_a * 10 ** df_trial_params.at[load_id, 'lr_c_mult']
+            tau = 10 ** -3 #trial.suggest_int('tau',-4, -2)
+            batch_size = 2 ** int(df_trial_params.at[load_id, 'batch_size'])
+            sigma = df_trial_params.at[load_id, 'sigma'] if perturbation == [0, 1, 4] else 1
+
+        random_seed = random_seed = int(df_trial_params.at[load_id, 'random_seed']) if fix_seed else None
+        rescale = 10 ** 0 #trial.suggest_discrete_uniform('rescale', -2, 0, 0.5)
+        epsilon = 1 #trial.suggest_discrete_uniform('epsilon', 1.0, 1.0, 0.1) if perturbation in [0, 1] else 1
+        EXPLORE = 10 ** df_trial_params.at[load_id, 'EXPLORE'] if perturbation in [0, 1, 2, 4] else 0
+        theta = df_trial_params.at[load_id, 'theta'] if perturbation in [1, 4] else 0
+        sigma_init = 0.017 if perturbation == 3 else None
+        nb_rollout_steps = int(2 ** df_trial_params.at[load_id, 'nb_rollout_steps']) if perturbation in [3, 4] else 1
+    
 
     #-------------------------------
     # Hyperparameter future work
@@ -118,8 +167,25 @@ def objective():
     if True:
         prefill_buffer = True
 
-        l2_reg_a = 0 # NOT NONE!
-        l2_reg_c = 0 # NOT NONE!    
+        if l_lim == False:
+            hl_a_base = trial.suggest_int('hl_a_base', 0, 13)
+            hl_a_mult = trial.suggest_int('hl_a_mult', 0, 10)
+            hl_a_num = 3
+            hidden_layers_a = [hl_a_base, hl_a_mult, hl_a_num]
+
+            hl_c_base = trial.suggest_int('hl_c_base', 0, 13)
+            hl_c_mult = trial.suggest_int('hl_c_mult', 0, 10)
+            hl_c_num = 3
+            hidden_layers_c = [hl_c_base, hl_c_mult, hl_c_num]
+
+        if L2_reg:
+            l2_reg_a = trial.suggest_discrete_uniform('l2_reg_a',-6, 0, 2)
+            l2_reg_c = trial.suggest_discrete_uniform('l2_reg_c',-6, 0, 2)
+            l2_reg_a = 10 ** l2_reg_a if l2_reg_a <= -1 else 0 # NOT NONE!
+            l2_reg_c = 10 ** l2_reg_c if l2_reg_c <= -1 else 0 # NOT NONE!
+        else:
+            l2_reg_a = 0 # NOT NONE!
+            l2_reg_c = 0 # NOT NONE!    
 
         if PER:
             PER_mode = 2 #trial.suggest_int('PER_mode', 1, 3)
@@ -132,13 +198,22 @@ def objective():
             per_b_init = trial.suggest_discrete_uniform('per_b', 0, 1, 0.2)
             per_b_grad = (1.0 - per_b_init) / target_episode_end if PER_anneal else 0
             per_e = 10 ** trial.suggest_discrete_uniform('per_e', -3, -1, 1)
-            
-        BN_a = 16
-        BN_c = 16
 
-        hidden_layers_f = 0
-        beta = 0
-        lr_f = 10 ** -3
+        if BN:
+            BN_a = trial.suggest_int('BN_a', 17, 31)
+            BN_c = trial.suggest_int('BN_c', 17, 31) 
+        else:
+            BN_a = 16
+            BN_c = 16
+
+        if icm:
+            hidden_layers_f = trial.suggest_int('hidden_layers_f', 0, 6)
+            beta = trial.suggest_discrete_uniform('beta', -2, 2, 0.5)
+            lr_f = 10 ** trial.suggest_discrete_uniform('lr_f', -5, -3, 0.5)
+        else: 
+            hidden_layers_f = 0
+            beta = 0
+            lr_f = 10 ** -3
 
         if fix_seed:
             #-------------------------------
@@ -369,9 +444,8 @@ def objective():
                     num_total_step += 1
                     state = next_state
                     if model == 'DDPG':
-                        action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
-                        # action = agent.action_predict(state, epsilon, phase='learning')
-                        # if epsilon > 0 and perturbation in [0, 1]: epsilon -= 1.0 / EXPLORE
+                        action = agent.action_predict(state, epsilon, phase='learning')
+                        if epsilon > 0 and perturbation in [0, 1]: epsilon -= 1.0 / EXPLORE
                     elif model == 'GP':
                         action = agent.action_predict(state)
 
@@ -381,15 +455,6 @@ def objective():
                             "Filling memory buffer... {:>2d}/10  time:{}"
                             .format(num_memory * 10 // min_memory_size, str(elapsed_time)[:-7])
                             )
-
-                #-------------------------------    
-                # Send Action to Unity
-                #------------------------------- 
-                nn_output = np.array(action, dtype = 'float')
-                #nn_output = np.array([action], dtype = 'float')
-                bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
-                c.sendall(bytes_to_send)
-                c.close()
 
         #-------------------------------
         # Start learning
@@ -730,4 +795,14 @@ if __name__ == '__main__':
     tf.get_logger().setLevel(logging.ERROR)
     # K.set_learning_phase(0) # 0 = test, 1 = train
 
-    objective()
+    study = optuna.create_study(direction='maximize', 
+                                study_name=study_name, 
+                                storage='sqlite:///db/'+model+'-'+env_id+'-'+study_name+'.db', 
+                                load_if_exists=True,
+                                sampler=optuna.samplers.RandomSampler(), #(seed=int(datetime.now().strftime('%d%H%M%S'))),
+                                # sampler=optuna.samplers.CmaEsSampler(),
+                                )
+    study.optimize(objective, 
+                    n_jobs=1, 
+                    n_trials=n_trials,
+                    )

@@ -4253,7 +4253,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6151e31e96dc54b29a6051633d23baab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HumanoidModel: {fileID: 1945900879}
   feet_contact: 0000000000000000
   colList: []
 --- !u!64 &1779337146
@@ -4850,8 +4849,8 @@ MonoBehaviour:
   HumanoidModel: {fileID: 1945900879}
   Target: {fileID: 518396079}
   Floor: {fileID: 1779337144}
-  j: 0000000000000000
   stop_flag: 0
+  countdown: 100000
   ip: 127.0.0.1
   port: 60000
   dataOut: []
