@@ -20,6 +20,8 @@ public class Env : MonoBehaviour
 
     GameObject[] game_objects = new GameObject[num_objects];
     Rigidbody[] rigid_bodies = new Rigidbody[num_objects];
+    HingeJoint[] indexed_joints = new HingeJoint[num_joints];
+
     float[] game_objects_x = new float[num_objects];
     float[] game_objects_y = new float[num_objects];
     float[] game_objects_z = new float[num_objects];
@@ -31,24 +33,34 @@ public class Env : MonoBehaviour
     float[] rigid_bodies_vz = new float[num_objects];
     float[] rigid_bodies_wx = new float[num_objects];
     float[] rigid_bodies_wy = new float[num_objects];
-    float[] rigid_bodies_wz = new float[num_objects];
-   
-
+    float[] rigid_bodies_wz = new float[num_objects]; 
     float[] joint_position = new float[num_joints];    
     float[] joint_velocity = new float[num_joints];
-    HingeJoint[] indexed_joints = new HingeJoint[num_joints];
 
+    float[] init_game_objects_x = new float[num_objects];
+    float[] init_game_objects_y = new float[num_objects];
+    float[] init_game_objects_z = new float[num_objects];
+    float[] init_game_objects_rx = new float[num_objects];
+    float[] init_game_objects_ry = new float[num_objects];
+    float[] init_game_objects_rz = new float[num_objects];
+    float[] init_rigid_bodies_vx = new float[num_objects];
+    float[] init_rigid_bodies_vy = new float[num_objects];
+    float[] init_rigid_bodies_vz = new float[num_objects];
+    float[] init_rigid_bodies_wx = new float[num_objects];
+    float[] init_rigid_bodies_wy = new float[num_objects];
+    float[] init_rigid_bodies_wz = new float[num_objects]; 
+    float[] init_joint_position = new float[num_joints];    
+    float[] init_joint_velocity = new float[num_joints];
+
+    float[] min_limit = new float[num_joints]   {-45, -75, -35, -120, -160, -120, -160, -85, -90, -85, -90}; 
+    float[] max_limit = new float[num_joints]   {45, 30, 35, 20, 2, 20, 2, 60, 50, 60, 50};
+    float[] motor_power = new float[num_joints] {100, 100, 100, 300, 200, 300, 200,  75,  75,  75,  75};
 
     float reward;
     float done;
     float step;
     float countdown;
 
-    float[] parts_data = new float[num_objects*12];
-    float[] init_parts_data = new float[num_objects*12];
-    float[] joints_data = new float[num_joints*2];
-    float[] init_joints_data = new float[num_joints*2];
-    float[] diff_joints_data = new float[num_joints*2];
     float[] data_Out = new float[dim_states+2]; //34
     float[] actions = new float[dim_actions];
 
@@ -165,17 +177,13 @@ public class Env : MonoBehaviour
         script = Floor.GetComponent<FloorCol>();
 
 
-        StockPartsStates();
-        StockJointsStates();  
-
-        parts_data.CopyTo(init_parts_data, 0);
-        joints_data.CopyTo(init_joints_data, 0);
+        StockStates();
+        StockInitStates();
     }
 
     void FixedUpdate()
     {
-        StockPartsStates();
-        StockJointsStates();
+        StockStates();
         StockOutputData();
 
 
@@ -194,8 +202,6 @@ public class Env : MonoBehaviour
         }
 
         // HingeJoint General
-        float[] min_limit = new float[num_joints]   {-45, -75, -35, -120, -160, -120, -160, -85, -90, -85, -90}; 
-        float[] max_limit = new float[num_joints]   {45, 30, 35, 20, 2, 20, 2, 60, 50, 60, 50};
         for (int i = 0; i < num_joints; i++)
         {
             JointLimits[] Limits = new JointLimits[num_joints];
@@ -213,7 +219,6 @@ public class Env : MonoBehaviour
 
         // HingeJoint Motor
         JointMotor[] Motors = new JointMotor[num_joints];
-        float[] motor_power = new float[num_joints] {100, 100, 100, 300, 200, 300, 200,  75,  75,  75,  75};
         for (int i = 0; i < num_joints; i++) //(int i = 5; i < 6; i++)//
         {
             Motors[i] = indexed_joints[i].motor;
@@ -237,6 +242,9 @@ public class Env : MonoBehaviour
         //     Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
         // }
 
+        Debug.Log(String.Format("Step={3}, iRx:{0:f}, iRy:{1:f}, iRz:{2:f} ", init_game_objects_rx[0], init_game_objects_ry[0], init_game_objects_rz[0], step));
+        Debug.Log(String.Format("Step={3}, Rx:{0:f}, Ry:{1:f}, Rz:{2:f}", game_objects_rx[0], game_objects_ry[0], game_objects_rz[0], step));
+        // Debug.Log(String.Format("Step={3}, dRx:{0:f}, dRy:{1:f}, dRz:{2:f}", NormalizedAngle(game_objects_rx[0]- init_game_objects_rx[0]), NormalizedAngle(game_objects_ry[0] - init_game_objects_ry[0]), NormalizedAngle(game_objects_rz[0] - init_game_objects_rz[0]), step));
 
         if ((countdown <= 0) || (stop_flag)) //achieve the goal
         {
@@ -260,7 +268,7 @@ public class Env : MonoBehaviour
     {
         StockOutputData();
         // actions = ServerRequest(data_Out);
-        SetInitPartsStates();
+        SetInitStates();
         countdown -= 1;
         reward = 0;
         done = 0;
@@ -280,16 +288,16 @@ public class Env : MonoBehaviour
     }
 
 
-    void StockPartsStates()
+    void StockStates()
     {
         for (int i = 0; i < num_objects; i++) 
         {
             game_objects_x[i] = game_objects[i].transform.position.x;
             game_objects_y[i] = game_objects[i].transform.position.y;
             game_objects_z[i] = game_objects[i].transform.position.z;
-            game_objects_rx[i] = game_objects[i].transform.localEulerAngles.x;
-            game_objects_ry[i] = game_objects[i].transform.localEulerAngles.y;
-            game_objects_rz[i] = game_objects[i].transform.localEulerAngles.z;
+            game_objects_rx[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.x, "degree");
+            game_objects_ry[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.y, "degree");
+            game_objects_rz[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.z, "degree");
             rigid_bodies_vx[i] = rigid_bodies[i].velocity.x;
             rigid_bodies_vy[i] = rigid_bodies[i].velocity.y;
             rigid_bodies_vz[i] = rigid_bodies[i].velocity.z;
@@ -297,43 +305,29 @@ public class Env : MonoBehaviour
             rigid_bodies_wy[i] = rigid_bodies[i].angularVelocity.y;
             rigid_bodies_wz[i] = rigid_bodies[i].angularVelocity.z;
         }
-        for (int i = 0; i < num_objects; i++) 
+        for (int i = 0; i < num_joints; i++) 
         {
-            parts_data[i*12+0] = game_objects_x[i];
-            parts_data[i*12+1] = game_objects_y[i];
-            parts_data[i*12+2] = game_objects_z[i];
-            parts_data[i*12+3] = game_objects_rx[i];
-            parts_data[i*12+4] = game_objects_ry[i];
-            parts_data[i*12+5] = game_objects_rz[i];
-            parts_data[i*12+6] = rigid_bodies_vx[i];
-            parts_data[i*12+7] = rigid_bodies_vy[i];
-            parts_data[i*12+8] = rigid_bodies_vz[i];
-            parts_data[i*12+9] = rigid_bodies_wx[i];
-            parts_data[i*12+10] = rigid_bodies_wy[i];
-            parts_data[i*12+11] = rigid_bodies_wz[i];
+            joint_position[i] = CurrentRelativePosition(indexed_joints[i]);
+            joint_velocity[i] = CurrentRelativeVelosity(indexed_joints[i]);
         }
     }
 
-    void SetInitPartsStates()
+    float NormalizedAngle(float angle, string type)
     {
-        for (int i = 0; i < num_objects; i++) 
-        {
-            game_objects[i].transform.position = new Vector3(init_parts_data[i*12+0], init_parts_data[i*12+1], init_parts_data[i*12+2]);
-            game_objects[i].transform.localEulerAngles = new Vector3(init_parts_data[i*12+3], init_parts_data[i*12+4], init_parts_data[i*12+5]);
-            rigid_bodies[i].velocity = new Vector3(init_parts_data[i*12+6], init_parts_data[i*12+7], init_parts_data[i*12+8]);
-            rigid_bodies[i].angularVelocity = new Vector3(init_parts_data[i*12+9], init_parts_data[i*12+10], init_parts_data[i*12+11]);
-        }        
-        // Floor.transform.position = new Vector3(0f, -1.57f, 0f);
-        // Floor.transform.eulerAngles = new Vector3(0f, 0f, 0f);
-        // FloorRB.velocity = new Vector3(0f, 0f, 0f);
-        // FloorRB.angularVelocity = new Vector3(0f, 0f, 0f);
+        float semicircle = 0f;
+        if (type == "degree") {
+            semicircle = 180f;
+        } else if (type == "euler") {
+            semicircle = (float)Math.PI;
+        }         
+        while (angle < -semicircle) angle += 2f * semicircle;   
+        while (angle > semicircle) angle -= 2f * semicircle;
+        return angle;
     }
 
     float CurrentRelativePosition(HingeJoint hinge_joint)
     {
-        float pos = hinge_joint.angle;
-        if (pos < -180f) pos += 360f;   
-        if (pos > 180f) pos -= 360f;
+        float pos = NormalizedAngle(hinge_joint.angle, "degree");
         return pos;
     }
 
@@ -343,26 +337,44 @@ public class Env : MonoBehaviour
         return vel;
     }
 
-    void StockJointsStates()
+    void StockInitStates()
     {
-        for (int i = 0; i < num_joints; i++) 
-        {
-            joint_position[i] = CurrentRelativePosition(indexed_joints[i]);
-            joint_velocity[i] = CurrentRelativeVelosity(indexed_joints[i]);
-        }
-
-        for (int i = 0; i < num_joints; i++) 
-        {
-            joints_data[i*2] = joint_position[i];
-            joints_data[i*2+1] = joint_velocity[i];
-        }
+        game_objects_x.CopyTo(init_game_objects_x, 0);
+        game_objects_y.CopyTo(init_game_objects_y, 0);
+        game_objects_z.CopyTo(init_game_objects_z, 0);
+        game_objects_rx.CopyTo(init_game_objects_rx, 0);
+        game_objects_ry.CopyTo(init_game_objects_ry, 0);
+        game_objects_rz.CopyTo(init_game_objects_rz, 0);
+        rigid_bodies_vx.CopyTo(init_rigid_bodies_vx, 0);
+        rigid_bodies_vy.CopyTo(init_rigid_bodies_vy, 0);
+        rigid_bodies_vz.CopyTo(init_rigid_bodies_vz, 0);
+        rigid_bodies_wx.CopyTo(init_rigid_bodies_wx, 0);
+        rigid_bodies_wy.CopyTo(init_rigid_bodies_wy, 0);
+        rigid_bodies_wz.CopyTo(init_rigid_bodies_wz, 0);
+        joint_position.CopyTo(init_joint_position, 0);
+        joint_velocity.CopyTo(init_joint_velocity, 0);
     }
 
+
+    void SetInitStates()
+    {
+        for (int i = 0; i < num_objects; i++) 
+        {
+            game_objects[i].transform.position = new Vector3(init_game_objects_x[i], init_game_objects_y[i], init_game_objects_z[i]);
+            game_objects[i].transform.eulerAngles = new Vector3(init_game_objects_rx[i], init_game_objects_ry[i], init_game_objects_rz[i]);
+            rigid_bodies[i].velocity = new Vector3(init_rigid_bodies_vx[i], init_rigid_bodies_vy[i], init_rigid_bodies_vz[i]);
+            rigid_bodies[i].angularVelocity = new Vector3(init_rigid_bodies_wx[i], init_rigid_bodies_wy[i], init_rigid_bodies_wz[i]);
+        }        
+        // Floor.transform.position = new Vector3(0f, -1.57f, 0f);
+        // Floor.transform.eulerAngles = new Vector3(0f, 0f, 0f);
+        // FloorRB.velocity = new Vector3(0f, 0f, 0f);
+        // FloorRB.angularVelocity = new Vector3(0f, 0f, 0f);
+    }
     void StockOutputData()
     {
         // more 8
-        double angle_to_target = Math.Atan2(game_objects_z[17] - game_objects_z[0], game_objects_x[17] - game_objects_x[0]);
-        double yaw = game_objects_ry[0] * Math.PI / 180f;
+        double yaw = - NormalizedAngle(game_objects_ry[0] - init_game_objects_ry[0], "degree");       
+        double angle_to_target = Math.Atan2(game_objects_z[17] - game_objects_z[0], game_objects_x[17] - game_objects_x[0]) - yaw;
         Vector2 torso_v = new Vector2(rigid_bodies_vx[0], rigid_bodies_vz[0]);
         double torso_v_length = torso_v.magnitude;
         double torso_v_angle = Math.Atan2(rigid_bodies_vx[0] - game_objects_z[0], rigid_bodies_vx[0]);
@@ -371,21 +383,22 @@ public class Env : MonoBehaviour
         float vx = (float)(torso_v_length * Math.Cos(torso_v_angle - yaw));
         float vy = rigid_bodies_vy[0];
         float vz = (float)(torso_v_length * Math.Sin(torso_v_angle - yaw));
-        data_Out[0] = game_objects_y[0] - init_parts_data[0*12+1];
+        data_Out[0] = game_objects_y[0] - init_game_objects_y[0];
         data_Out[1] = sin_angle_to_target;
         data_Out[2] = cos_angle_to_target;
         data_Out[3] = 0.3f * vx;
         data_Out[4] = 0.3f * vy;
         data_Out[5] = 0.3f * vz;
-        data_Out[6] = game_objects_rx[0] * (float)Math.PI / 180f;
-        data_Out[7] = game_objects_rz[0] * (float)Math.PI / 180f; 
+        data_Out[6] = NormalizedAngle(game_objects_rx[0] - init_game_objects_rx[0], "degree") / 180f;
+        data_Out[7] = NormalizedAngle(game_objects_rz[0] - init_game_objects_rz[0], "degree") / 180f;
         
         // j 11 * 2
-        for(int i = 0; i < num_joints*2; i++)
+        for(int i = 0; i < num_joints; i++)
         {
-            data_Out[i+8] = joints_data[i];
-            if(i % 2 == 0) data_Out[i] /= 180f;
-            if(i % 2 == 1) data_Out[i] /= 600f; // Motors[i].targetVelocity = Math.Sign(actions[i]) * motor_power[i] * 2f;
+            float center = (max_limit[i] + min_limit[i]) / 2f;
+            float range = (max_limit[i] - min_limit[i]) / 2f;
+            data_Out[8+i*2] = (joint_position[i] - center) / range;
+            data_Out[8+i*2+1] = joint_velocity[i] / 600f; // Motors[i].targetVelocity = Math.Sign(actions[i]) * motor_power[i] * 2f;
         }
 
         // feet contact 2
