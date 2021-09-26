@@ -15,9 +15,8 @@ from SumTree import SumTree
 from time import sleep
 import socket, struct
 
-
-model = 'DDPG'
-env_id = 'Humanoid'
+model = 'TD3'
+env_id = 'Humanoid_on_Unity'
 study_name = '00'
 n_trials = 5
 step = None # To pickle memory
@@ -46,7 +45,7 @@ def objective():
     #-------------------------------
     # Environment Setting
     #-------------------------------   
-    run_id = 0 #trial.trial_id #trial.number #datetime.now().strftime('%Y%m%d%H%M%S-%f') 
+    run_id = datetime.now().strftime('%Y%m%d%H%M%S-%f') 
     save = False
     R_note = 1000
     load = False
@@ -59,7 +58,7 @@ def objective():
     range_action_range = (range_action_high - range_action_low) / 2.
     range_action_mean = (range_action_high + range_action_low) / 2.
 
-    if env_id == 'Humanoid':
+    if env_id == 'Humanoid_on_Unity':
         log_interval = 1
         target_criteria = 'sma' #'max'
         target_episode_start = 0
@@ -115,7 +114,10 @@ def objective():
         prefill_buffer = True
 
         l2_reg_a = 0 # NOT NONE!
-        l2_reg_c = 0 # NOT NONE!    
+        l2_reg_c = 0 # NOT NONE!
+
+        BN_a = 16
+        BN_c = 16 
 
         if PER:
             PER_mode = 2 #trial.suggest_int('PER_mode', 1, 3)
@@ -128,13 +130,6 @@ def objective():
             per_b_init = trial.suggest_discrete_uniform('per_b', 0, 1, 0.2)
             per_b_grad = (1.0 - per_b_init) / target_episode_end if PER_anneal else 0
             per_e = 10 ** trial.suggest_discrete_uniform('per_e', -3, -1, 1)
-
-        BN_a = 16
-        BN_c = 16
-
-        # hidden_layers_f = 0
-        # beta = 0
-        # lr_f = 10 ** -3
 
         if fix_seed:
             #-------------------------------
@@ -180,7 +175,6 @@ def objective():
     num_total_step = 0
 
     sum_reward = 0
-    # sum_icm_reward = 0
 
     R_s0 = np.nan
     R_s1 = np.nan
@@ -188,19 +182,13 @@ def objective():
 
     td_loss = 0
     nabla_J = 0
-    # icm_loss = 0
 
     list_R_log = []
-    # list_Ri_log = []
     list_R_all = []
     
     list_R_s0 = deque([], maxlen=stage0_sma_interval)
     list_R_s1 = deque([], maxlen=stage1_sma_interval)
     list_R_s2 = deque([], maxlen=stage2_sma_interval)
-
-    # list_td_loss = deque([], maxlen=max_episode_steps*log_interval)
-    # list_nabla_J = deque([], maxlen=max_episode_steps*log_interval)
-    # list_Q = deque([], maxlen=max_episode_steps*log_interval)
 
     memory = SumTree(max_memory_size) if PER else deque([], maxlen=max_memory_size)
     num_memory = memory.len if PER else len(memory)
@@ -212,7 +200,6 @@ def objective():
                                 "action", 
                                 "next_reward", 
                                 "next_state", 
-                                # "icm_reward", 
                                 "done",
                                 ])    
     else:
@@ -222,7 +209,6 @@ def objective():
                                 "action", 
                                 "next_reward", 
                                 "next_state", 
-                                # "icm_reward", 
                                 "done",
                                 ])
 
@@ -248,10 +234,7 @@ def objective():
                 theta=theta,
                 sigma_init=sigma_init,
                 sigma=sigma,
-                # hidden_layers_f=hidden_layers_f,
-                # lr_f=lr_f,
                 TD3=TD3,
-                # icm=icm,
                 )
 
     if load:
@@ -265,7 +248,6 @@ def objective():
             agent.critic_2_network_model = load_model(("./result/{}/{}/{}_critic_2_model.h5").format(env_id, study_name, model))
             agent.critic_2_network = load_model(("./result/{}/{}/{}_critic_2_network.h5").format(env_id, study_name, model))
             agent.target_critic_2_network = load_model(("./result/{}/{}/{}_target_critic_2_network.h5").format(env_id, study_name, model))
-        # if icm: agent.forward_model = load_model(("./result/{}/{}/{}_forward_model.h5").format(env_id, study_name, model))
         if not PER: memory = read_pickle(("./result/{}/{}/{}_memory.pkl").format(env_id, study_name, model))
         print('Pre-trained model loaded, run id:{} ready.'.format(run_id))
     else:
@@ -297,12 +279,6 @@ def objective():
                     action = agent.action_normalized(action)
                     sum_reward += next_reward
                     next_reward = rescale * next_reward
-                    # if icm:
-                    #     next_state_pred = agent.forward_model.predict([state.reshape(1, -1), action.reshape(1, -1)])
-                    #     icm_reward = beta * np.sum(np.square(next_state_pred - next_state)) / (2 * dim_states)
-                    # else:
-                    #     icm_reward = 0
-                    # sum_icm_reward += icm_reward
                     
                     if PER:
                         action_pred = agent.actor_network.predict(next_state.reshape(1, -1))
@@ -321,7 +297,6 @@ def objective():
                                 action=action,
                                 next_reward=next_reward,
                                 next_state=next_state,
-                                # icm_reward=icm_reward,
                                 done=done)
                             )
                     else:
@@ -333,7 +308,6 @@ def objective():
                                 action=action,
                                 next_reward=next_reward,
                                 next_state=next_state,
-                                # icm_reward=icm_reward,
                                 done=done)
                             ))
                     num_memory = memory.len if PER else len(memory)
@@ -355,7 +329,6 @@ def objective():
                     # End a step
                     #------------------------------- 
                     sum_reward = 0
-                    # sum_icm_reward = 0
                     num_step = 0
                 elif done == 0: # Episode on going
                     #-------------------------------
@@ -364,12 +337,9 @@ def objective():
                     num_step += 1
                     num_total_step += 1
                     state = next_state
-                    if model == 'DDPG':
-                        action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
-                        # action = agent.action_predict(state, epsilon, phase='learning')
-                        # if epsilon > 0 and perturbation in [0, 1]: epsilon -= 1.0 / EXPLORE
-                    elif model == 'GP':
-                        action = agent.action_predict(state)
+                    action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
+                    # action = agent.action_predict(state, epsilon, phase='learning')
+                    # if epsilon > 0 and perturbation in [0, 1]: epsilon -= 1.0 / EXPLORE
 
                     if num_memory % 1000 == 0:
                         elapsed_time = (datetime.now() - start_time)
@@ -414,12 +384,6 @@ def objective():
                 action = agent.action_normalized(action)
                 sum_reward += next_reward
                 next_reward = rescale * next_reward
-                # if icm:
-                #     next_state_pred = agent.forward_model.predict([state.reshape(1, -1), action.reshape(1, -1)])
-                #     icm_reward = beta * np.sum(np.square(next_state_pred - next_state)) / (2 * dim_states)
-                # else:
-                #     icm_reward = 0
-                # sum_icm_reward += icm_reward
                 
                 if PER:
                     action_pred = agent.actor_network.predict(next_state.reshape(1, -1))                   
@@ -438,7 +402,6 @@ def objective():
                             action=action,
                             next_reward=next_reward,
                             next_state=next_state,
-                            # icm_reward=icm_reward,
                             done=done)
                         )
                 else:
@@ -450,7 +413,6 @@ def objective():
                             action=action,
                             next_reward=next_reward,
                             next_state=next_state,
-                            # icm_reward=icm_reward,
                             done=done)
                         ))
                 num_memory = memory.len if PER else len(memory)
@@ -483,24 +445,20 @@ def objective():
             actions = np.asarray([step.action for _, _, step in batch]).reshape(-1, dim_actions)
             next_rewards = np.asarray([step.next_reward for _, _, step in batch]).reshape(-1, 1)
             next_states = np.asarray([step.next_state for _, _, step in batch]).reshape(-1, dim_states)
-            # icm_rewards = np.asarray([step.icm_reward for _, _, step in batch]).reshape(-1, 1)
             dones = np.asarray([step.done for _, _, step in batch]).reshape(-1, 1)                
 
-            if model == 'DDPG':
-                action_target_preds = agent.target_actor_network.predict(next_states)
-                # Target Policy Smoothing Regularization
-                if TD3: 
-                    noise = np.random.normal(loc=0.0, 
-                                             scale=0.2, 
-                                             size=(batch_size, dim_actions))
-                    noise = np.clip(noise, -0.5, 0.5)
-                    action_target_preds += noise         
-                next_targets = agent.target_critic_network.predict([next_states, action_target_preds])
-                if TD3:
-                    next_targets_2 = agent.target_critic_2_network.predict([next_states, action_target_preds])
-                    next_targets = np.minimum(next_targets, next_targets_2)
-            # elif model == 'GP':
-            #     next_targets = agent.critic_network_model.predict(next_states)
+            action_target_preds = agent.target_actor_network.predict(next_states)
+            # Target Policy Smoothing Regularization
+            if TD3: 
+                noise = np.random.normal(loc=0.0, 
+                                            scale=0.2, 
+                                            size=(batch_size, dim_actions))
+                noise = np.clip(noise, -0.5, 0.5)
+                action_target_preds += noise         
+            next_targets = agent.target_critic_network.predict([next_states, action_target_preds])
+            if TD3:
+                next_targets_2 = agent.target_critic_2_network.predict([next_states, action_target_preds])
+                next_targets = np.minimum(next_targets, next_targets_2)
             next_targets = next_rewards + agent.gamma * next_targets * (1 - dones)
 
             if PER:
@@ -510,27 +468,19 @@ def objective():
                 max_weight = np.max(weights) if PER_max else 1
             weights = weights / max_weight if PER else np.ones_like(next_targets)
             # dummy = np.zeros_like(next_targets)
-            if model == 'DDPG':
-                next_targets_merged = np.concatenate([next_targets, weights], axis=1).reshape(batch_size, 1, -1)
-                states_reshape = states.reshape(batch_size, 1, -1)
-                td_loss = agent.critic_network_model.train_on_batch([states, actions], next_targets_merged)
-                if TD3:
-                    td_loss_2 = agent.critic_2_network_model.train_on_batch([states, actions], next_targets_merged)
-                    # td_loss = min(td_loss, td_loss_2)
-                    agent.sync_target_critic_2_network()
-                agent.sync_target_critic_network()
-                if num_total_step % 2 == 0 or TD3 == False:
-                    nabla_J = -agent.actor_network_model.train_on_batch(states, states_reshape)
-                    agent.sync_target_actor_network()
-                # td_loss = agent.critic_network_model.train_on_batch([states, actions, weights], next_targets)
-                # nabla_J = -agent.actor_network_model.train_on_batch(states, dummy)
-            #     if icm: icm_loss = agent.forward_model.train_on_batch([states, actions], next_states)
-                
-            # elif model == 'GP':
-            #     dummy = np.zeros_like(next_targets)
-            #     td_loss = agent.critic_network_model.train_on_batch(states, next_targets)
-            #     nabla_J = -agent.actor_network_model.train_on_batch([states, actions, next_targets], dummy)
-            #     if icm: icm_loss = agent.forward_model.train_on_batch([states, actions], next_states)
+
+            next_targets_merged = np.concatenate([next_targets, weights], axis=1).reshape(batch_size, 1, -1)
+            states_reshape = states.reshape(batch_size, 1, -1)
+            td_loss = agent.critic_network_model.train_on_batch([states, actions], next_targets_merged)
+            if TD3:
+                td_loss_2 = agent.critic_2_network_model.train_on_batch([states, actions], next_targets_merged)
+                # td_loss = min(td_loss, td_loss_2)
+                agent.sync_target_critic_2_network()
+            agent.sync_target_critic_network()
+            if num_total_step % 2 == 0 or TD3 == False:
+                nabla_J = -agent.actor_network_model.train_on_batch(states, states_reshape)
+                agent.sync_target_actor_network()
+
 
             if PER:
                 action_preds = agent.actor_network.predict(next_states)
@@ -567,7 +517,6 @@ def objective():
                 # End a episode
                 #------------------------------- 
                 list_R_log.append(sum_reward)
-                # list_Ri_log.append(sum_icm_reward)
                 list_R_all.append(sum_reward)
                 
                 if num_episode % nb_test_episodes == 0:
@@ -584,7 +533,6 @@ def objective():
                 #-------------------------------
                 elapsed_time = (datetime.now() - start_time)
                 R_avg = sum(list_R_log)/len(list_R_log)
-                # Ri_avg = sum(list_Ri_log)/len(list_Ri_log)
 
                 if num_episode % nb_test_episodes == 0:
                     logger.log(logs={"2 Reward/2 Reward in test": R_avg},
@@ -603,8 +551,6 @@ def objective():
                         "1 Loss/1 TD loss": td_loss,
                         "1 Loss/2 nabla J": nabla_J,
                         "2 Reward/1 Reward in training": R_avg,
-                        # "3 Noise/9 ICM Reward avg": Ri_avg,
-                        # "3 Noise/9 ICM loss": icm_loss,
                         "9 misc./1 Memory size": num_memory,
                         "9 misc./2 Total Step": num_total_step,
                     }
@@ -615,14 +561,6 @@ def objective():
                         .format(num_episode, R_avg, nabla_J, str(elapsed_time)[:-7])
                         )
 
-                    # if len(study_name) == 2:
-                    #     try:
-                    #         study_best_value = study.best_value
-                    #     except ValueError:
-                    #         study_best_value = np.nan
-                    # else:
-                    #     study_best_value = np.nan
-                    # if R_note < R_avg and (study_best_value < R_avg or math.isnan(study_best_value)): 
                     if (R_note < R_avg) and (save): 
                         R_note = R_avg
                         os.makedirs(("./result/{}/{}_{}").format(env_id, study_name, run_id), exist_ok=True)
@@ -636,24 +574,19 @@ def objective():
                             agent.critic_2_network_model.save(("./result/{}/{}_{}/{}_critic_2_model.h5").format(env_id, study_name, run_id, model))
                             agent.critic_2_network.save(("./result/{}/{}_{}/{}_critic_2_network.h5").format(env_id, study_name, run_id, model))
                             agent.target_critic_2_network.save(("./result/{}/{}_{}/{}_target_critic_2_network.h5").format(env_id, study_name, run_id, model))
-                        # if icm: agent.forward_model.save(("./result/{}/{}_{}/{}_forward_model.h5").format(env_id, study_name, run_id, model))
                         if not PER: to_pickle(memory, ("./result/{}/{}_{}/{}_memory.pkl").format(env_id, study_name, run_id, model))
                         pathlib.Path(("./result/{}/{}_{}/R_{}-ep_{}").format(env_id, study_name, run_id, int(R_avg), num_episode)).touch()
              
                 if num_episode % 1000 == 0:
                     histograms = Histograms(model=agent.actor_network.layers, model_id="actor", histograms=histograms)
                     histograms = Histograms(model=agent.critic_network.layers, model_id="critic", histograms=histograms)
-                    # if icm:
-                    #     histograms = Histograms(model=agent.forward.layers, model_id="forward", histograms=histograms)
                     logger.log(histograms=histograms, epoch=num_episode)
                     histograms = {}
 
                 sum_reward = 0
-                # sum_icm_reward = 0
                 num_step = 0
                 num_episode += 1                 
                 list_R_log = []
-                # list_Ri_log = []
 
                 if num_episode % nb_test_episodes == 0 and perturbation in [3, 4]:
                     # for starting test phase
@@ -665,21 +598,16 @@ def objective():
                 num_step += 1
                 if num_episode % nb_test_episodes != 0: num_total_step += 1
                 state = next_state
-                if model == 'DDPG':
-                    if num_episode % nb_test_episodes == 0:
-                        action = agent.action_predict(state, epsilon, phase='test')
-                    else:
-                        action = agent.action_predict(state, epsilon, phase='learning')
-                        if epsilon > 0 and perturbation in [0, 1]:
-                            epsilon -= 1.0 / EXPLORE
-                            if num_total_step % 100 == 0 and perturbation in [0, 1]:
-                                logger.log(logs={"3 Noise/1 Action Space Noise": agent.action_space_noise[0][0],
-                                                 "3 Noise/9 epsilon": epsilon}, 
-                                           epoch=num_total_step)
-                # elif model == 'GP':
-                #     action = agent.action_predict(state)
-                # if action_max < action: action_max = action
-                # if action_min > action: action_min = action      
+                if num_episode % nb_test_episodes == 0:
+                    action = agent.action_predict(state, epsilon, phase='test')
+                else:
+                    action = agent.action_predict(state, epsilon, phase='learning')
+                    if epsilon > 0 and perturbation in [0, 1]:
+                        epsilon -= 1.0 / EXPLORE
+                        if num_total_step % 100 == 0 and perturbation in [0, 1]:
+                            logger.log(logs={"3 Noise/1 Action Space Noise": agent.action_space_noise[0][0],
+                                                "3 Noise/9 epsilon": epsilon}, 
+                                        epoch=num_total_step)
                 
             #-------------------------------    
             # Send Action to Unity

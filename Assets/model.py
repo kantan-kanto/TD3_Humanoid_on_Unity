@@ -37,10 +37,7 @@ class DDPG():
                 theta,
                 sigma_init,
                 sigma,
-                # hidden_layers_f,
-                # lr_f,
                 TD3,
-                # icm,
                 ):
         self.dim_states = dim_states
         self.dim_actions = dim_actions
@@ -63,11 +60,9 @@ class DDPG():
         self.activ_a = activ_a
         self.lr_a = lr_a
         self.lr_c = lr_c
-        # self.lr_f = lr_f
         self.optim_a = Adam(lr=self.lr_a) if optim_a == 'Adam' else SGD(lr=self.lr_a)
         self.optim_c = Adam(lr=self.lr_c) if optim_c == 'Adam' else SGD(lr=self.lr_c)
         self.TD3 = TD3
-        # self.icm = icm
 
         self.tau = tau # 0.001
         self.gamma = 0.99
@@ -81,11 +76,6 @@ class DDPG():
         self.ou_noise = None
         self.paramas_noise_sigma = 1.0
         self.prev_weights_dict = {}
-
-        # if type(hidden_layers_f) is int:
-        #     self.hidden_layers_f = self.HiddenLayersSelector(hidden_layers_f)
-        # elif type(hidden_layers_f) is list:
-        #     self.hidden_layers_f = self.HiddenLayersCreator(hidden_layers_f)
         
         #-------------------------------
         # Compile CriticNetwork
@@ -177,22 +167,6 @@ class DDPG():
                                                 loss=self.merged_weighted_mse)
 
             self.target_critic_2_network = self.build_critic_network()
-
-        # # -------------------------------
-        # # Compile Forward model from ICM
-        # # -------------------------------
-        # if self.icm:
-        #     self.forward = self.build_forward()
-
-        #     input_state = Input(shape=(self.dim_states,))
-        #     input_action = Input(shape=(self.dim_actions,))
-        #     next_state_pred = self.forward([input_state, input_action])
-        #     self.forward_model = Model(inputs = [input_state, input_action], 
-        #                             outputs = next_state_pred)
-        #     # print('Forward model Summary:')
-        #     # self.forward_model.summary()
-        #     self.forward_model.compile(optimizer=Adam(lr=self.lr_f),
-        #                             loss='mean_squared_error')  
 
 
     # def get_neg_J(self, input_state):
@@ -303,27 +277,6 @@ class DDPG():
             target_weights[idx] *= (1 - self.tau)
             target_weights[idx] += self.tau * w
         self.target_critic_2_network.set_weights(target_weights)
-
-
-    # def build_forward(self): # from ICM
-    #     input_state_layer = Input(shape=(self.dim_states,))
-    #     input_action_layer = Input(shape=(self.dim_actions,))
-    #     x = Concatenate(axis=-1)([input_state_layer, input_action_layer])
-    #     x = Dense(units=self.hidden_layers_f[0], kernel_initializer=self.kernel_initializer)(x)
-    #     x = Activation("relu")(x)
-    #     for i in range(1, len(self.hidden_layers_f)):
-    #         x = Dense(units=self.hidden_layers_f[i], kernel_initializer=self.kernel_initializer, kernel_regularizer=regularizers.l2(l=self.l2_reg_c))(x)
-    #         # if int(self.BN_f[i]): x = BatchNormalization()(x)
-    #         x = Activation("relu")(x)
-    #     x = Dense(units=self.dim_states, kernel_initializer='glorot_normal')(x)
-    #     # if int(self.BN_f[-1]): x = BatchNormalization()(x)
-    #     output_layer = Activation("linear")(x)
-
-    #     model = Model(inputs = [input_action_layer, input_state_layer], outputs = output_layer)
-    #     # model = Model(inputs = input_layer, outputs = output_layer)
-    #     #print('ICM Forward Summary:')
-    #     #model.summary()
-    #     return model
 
 
     def action_predict(self, state, epsilon, phase='learning'):
