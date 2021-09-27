@@ -8,6 +8,7 @@ using UnityEngine.Serialization;
 
 public class Env : MonoBehaviour
 {
+    bool debug_flag = false;
     public GameObject HumanoidModel;
     public GameObject Target;
     public GameObject Floor;
@@ -63,7 +64,7 @@ public class Env : MonoBehaviour
     float step;
 
 
-    float[] data_Out = new float[dim_states+2]; // 34 = more8 + j22 + feet_contact2 + reward + done
+    float[] output_data = new float[dim_states+2]; // 34 = more8 + j22 + feet_contact2 + reward + done
 
     public bool stop_flag;
     public int countdown = 100000;
@@ -173,26 +174,79 @@ public class Env : MonoBehaviour
         script = Floor.GetComponent<FloorCol>();
 
         StockStates();
+
         StockInitStates();
+        
         SetInitStates(); // for formatting action potential_old reward done step
+        StockOutputData();
+        actions = AskAgent();
     }
 
     void FixedUpdate()
     {
         StockStates();
+
+        if ((countdown <= 0) || (stop_flag)) //achieve the goal
+        {
+            done = 9;
+            Quit();
+        }
+        else if (step > 1024 || game_objects_y[0] < 0.78f)
+        {
+            done = 1;
+            Reset();
+        }
+        else
+        {
+            step += 1;
+        }
+
         CalcReward(actions);
         StockOutputData();
-        actions = ServerRequest(data_Out);
-        // Debug.Log(actions);
-        // System.Random cRandom = new System.Random();
-        // for (int i = 0; i < num_joints; i++)
-        // {
-        //     double dRandom = (cRandom.NextDouble() * 2.0) - 1.0;
-        //     float fRandom = (float)dRandom;
-        //     // if(i != 5 && i != 9) actions[i] = 0f; //fRandom; //-1f;
-        //     // else actions[i] = -1f; //fRandom; //-1f;
-        //     actions[i] = fRandom;
-        // }
+        actions = AskAgent();
+    }
+
+    void Reset()
+    {
+        CalcReward(actions);
+        StockOutputData();
+        AskAgent();
+
+        countdown -= 1;
+
+        SetInitStates();
+        StockOutputData();
+        actions = AskAgent();
+    }
+
+    void Quit() 
+    {
+        CalcReward(actions);
+        StockOutputData();
+        AskAgent();
+
+        #if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+        #elif UNITY_STANDALONE
+        Application.Quit();
+        #endif
+    }
+
+    float[] AskAgent()
+    {
+        if (debug_flag == false) {
+            actions = ServerRequest(output_data);
+        } else {
+            System.Random cRandom = new System.Random();
+            for (int i = 0; i < num_joints; i++)
+            {
+                double dRandom = (cRandom.NextDouble() * 2.0) - 1.0;
+                float fRandom = (float)dRandom;
+                // if(i != 5 && i != 9) actions[i] = 0f; //fRandom; //-1f;
+                // else actions[i] = -1f; //fRandom; //-1f;
+                actions[i] = fRandom;
+            }            
+        }
 
         // HingeJoint General
         for (int i = 0; i < num_joints; i++)
@@ -209,7 +263,6 @@ public class Env : MonoBehaviour
             // Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
         }
 
-
         // HingeJoint Motor
         JointMotor[] Motors = new JointMotor[num_joints];
         for (int i = 0; i < num_joints; i++) //(int i = 5; i < 6; i++)//
@@ -222,60 +275,8 @@ public class Env : MonoBehaviour
             indexed_joints[i].useMotor = true;
             // Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
         }
-
-        // HingeJoint Spring
-        // JointSpring[] Springs = new JointSpring[num_joints];
-        // for (int i = 0; i < num_joints; i++) 
-        // {
-        //     Springs[i] = indexed_joints[i].spring;
-        //     Springs[i].spring = 1000;
-        //     Springs[i].damper = 10;
-        //     Springs[i].targetPosition = init_joints_data[i*2];
-        //     indexed_joints[i].spring = Springs[i];
-        //     Debug.Log(String.Format("idx{0}: R= {1:f}, V= {2:f}, Axis={3}", i, joints_data[i*2], joints_data[i*2+1], indexed_joints[i].axis));
-        // }
-
-        // Debug.Log(String.Format("Step={3}, iRx:{0:f}, iRy:{1:f}, iRz:{2:f} ", init_game_objects_rx[0], init_game_objects_ry[0], init_game_objects_rz[0], step));
-        // Debug.Log(String.Format("Step={3}, Rx:{0:f}, Ry:{1:f}, Rz:{2:f}", game_objects_rx[0], game_objects_ry[0], game_objects_rz[0], step));
-
-        if ((countdown <= 0) || (stop_flag)) //achieve the goal
-        {
-            done = 9;
-            Quit();
-        }
-        else if (step > 1024 || game_objects_y[0] < 0.78f)
-        {
-            done = 1;
-            Reset();
-        }
-        else
-        {
-            step += 1;
-        } 
+        return actions;
     }
-
-    void Reset()
-    {
-        CalcReward(actions);
-        StockOutputData();
-        actions = ServerRequest(data_Out);
-        SetInitStates();
-        countdown -= 1;
-    }
-
-    void Quit() 
-    {
-        // CalcReward(actions);
-        StockOutputData();
-        // ServerRequest(data_Out);
-
-        #if UNITY_EDITOR
-        EditorApplication.isPlaying = false;
-        #elif UNITY_STANDALONE
-        Application.Quit();
-        #endif
-    }
-
 
     void StockStates()
     {
@@ -356,11 +357,11 @@ public class Env : MonoBehaviour
         actions = new float[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         Vector2 init_walk_target = new Vector2(init_game_objects_x[17] - init_game_objects_x[0], init_game_objects_z[17] - init_game_objects_z[0]);
         float init_walk_target_length = init_walk_target.magnitude;
-        potential_old = init_walk_target_length / Time.fixedDeltaTime;
+        potential_old = - init_walk_target_length / Time.fixedDeltaTime;
         reward = 0;
         done = 0;
         step = 0;
-        // Floor.transform.position = new Vector3(0f, -1.57f, 0f);
+        // Floor.transform.position = new Vector3(0f, 0f, 0f);
         // Floor.transform.eulerAngles = new Vector3(0f, 0f, 0f);
         // FloorRB.velocity = new Vector3(0f, 0f, 0f);
         // FloorRB.angularVelocity = new Vector3(0f, 0f, 0f);
@@ -378,59 +379,64 @@ public class Env : MonoBehaviour
         float vx = (float)(torso_v_length * Math.Cos(torso_v_angle - yaw));
         float vy = rigid_bodies_vy[0];
         float vz = (float)(torso_v_length * Math.Sin(torso_v_angle - yaw));
-        data_Out[0] = game_objects_y[0] - init_game_objects_y[0];
-        data_Out[1] = sin_angle_to_target;
-        data_Out[2] = cos_angle_to_target;
-        data_Out[3] = 0.3f * vx;
-        data_Out[4] = 0.3f * vy;
-        data_Out[5] = 0.3f * vz;
-        data_Out[6] = NormalizedAngle(game_objects_rx[0] - init_game_objects_rx[0], "degree") / 180f;
-        data_Out[7] = NormalizedAngle(game_objects_rz[0] - init_game_objects_rz[0], "degree") / 180f;
+        output_data[0] = game_objects_y[0] - init_game_objects_y[0];
+        output_data[1] = sin_angle_to_target;
+        output_data[2] = cos_angle_to_target;
+        output_data[3] = 0.3f * vx;
+        output_data[4] = 0.3f * vy;
+        output_data[5] = 0.3f * vz;
+        output_data[6] = NormalizedAngle(game_objects_rx[0] - init_game_objects_rx[0], "degree") / 180f;
+        output_data[7] = NormalizedAngle(game_objects_rz[0] - init_game_objects_rz[0], "degree") / 180f;
         
         // j 11 * 2
         for(int i = 0; i < num_joints; i++)
         {
             float center = (max_limit[i] + min_limit[i]) / 2f;
             float range = (max_limit[i] - min_limit[i]) / 2f;
-            data_Out[8+i*2] = (joint_position[i] - center) / range;
-            data_Out[8+i*2+1] = joint_velocity[i] / 600f; // Motors[i].targetVelocity = Math.Sign(actions[i]) * motor_power[i] * 2f;
+            output_data[8+i*2] = (joint_position[i] - center) / range;
+            output_data[8+i*2+1] = joint_velocity[i] / 600f; // Motors[i].targetVelocity = Math.Sign(actions[i]) * motor_power[i] * 2f;
         }
 
         // feet contact 2
-        data_Out[dim_states-2] = script.feet_contact[0];
-        data_Out[dim_states-1] = script.feet_contact[1];
-        // Debug.Log(String.Format("Feet Contacts=[{0}, {1}], Ry={2:f}, Ly={3:f}, Step={4}", data_Out[dim_states-2], data_Out[dim_states-1], game_objects_y[7], game_objects_y[10], step));
+        output_data[dim_states-2] = script.feet_contact[0];
+        output_data[dim_states-1] = script.feet_contact[1];
+        // Debug.Log(String.Format("Feet Contacts=[{0}, {1}], Ry={2:f}, Ly={3:f}, Step={4}", output_data[dim_states-2], output_data[dim_states-1], game_objects_y[7], game_objects_y[10], step));
         script.colList.Clear();
 
         // other
-        data_Out[dim_states+0] = reward;
-        data_Out[dim_states+1] = done;
+        output_data[dim_states+0] = reward;
+        output_data[dim_states+1] = done;
     }
 
     void CalcReward(float[] a)
     {
         // alive bonus
-        if (game_objects_y[0] > 0.78f) reward += 2f;
-        else reward -= 1f;
+        float alive_bonus = 0f;
+        if (game_objects_y[0] > 0.78f) alive_bonus = 2f;
+        else alive_bonus = -1f;
 
         // progress
         Vector2 walk_target = new Vector2(game_objects_x[17] - game_objects_x[0], game_objects_z[17] - game_objects_z[0]);
         float walk_target_length = walk_target.magnitude;
-        float potential = walk_target_length / Time.fixedDeltaTime - potential_old;
-        reward -= potential;
+        float potential = - walk_target_length / Time.fixedDeltaTime;
+        float progress = potential - potential_old;
         potential_old = potential;
 
+        float electricity_cost = 0f;
+        float joints_at_limit_cost = 0f;
         for(int i = 0; i < num_joints; i++)
         {
             // electricity cost
-            reward -= 2.0f * Math.Abs(a[i] * joint_velocity[i] / 600f) / num_joints;
-            reward -= 0.1f * (float)Math.Pow(a[i], 2) / num_joints;
+            electricity_cost += 2.0f * Math.Abs(a[i] * joint_velocity[i] / 600f) / num_joints;
+            electricity_cost += 0.1f * (float)Math.Pow(a[i], 2) / num_joints;
 
             // joints at limit cost
             float center = (max_limit[i] + min_limit[i]) / 2f;
             float range = (max_limit[i] - min_limit[i]) / 2f;
             float normalized_position = Math.Abs((joint_position[i] - center) / range);
-            if(normalized_position > 0.99) reward -= 0.1f * normalized_position;
+            if(normalized_position > 0.99) joints_at_limit_cost += 0.1f * normalized_position;
         }
+        reward = alive_bonus + progress - electricity_cost - joints_at_limit_cost;
+        Debug.Log(String.Format("Step;{4}, alive_bonus:{0:f}, progress:{1:f}, electricity_cost:{2:f}, joints_at_limit_cost:{3:f}, torso_y:{5:f}", alive_bonus, progress, electricity_cost, joints_at_limit_cost, step, game_objects_y[0]));
     }
 }

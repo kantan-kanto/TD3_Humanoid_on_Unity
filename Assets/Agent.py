@@ -88,24 +88,24 @@ def objective():
         perturbation = 0 #perturbation_dict['noisy_dense']
         PER = False
         TD3 = True
+        l_lim = True
         fix_seed = True
 
         if TD3:
-            hidden_layers_a = 5 #trial.suggest_int('hidden_layers_a', 1, 6) if l_lim else None
-            hidden_layers_c = 5 #trial.suggest_int('hidden_layers_c', 5, 6) if l_lim else None
-            lr_a = 10 ** -3 #trial.suggest_discrete_uniform('lr_a', -4.5, -3, 0.5)
-            lr_c = 10 ** -3 #lr_a * 10 ** trial.suggest_discrete_uniform('lr_c_mult', 0, 0.5, 0.5)
-            tau = 5 * 10 ** -3 #trial.suggest_int('tau',-4, -2)
-            batch_size = 100 #2 ** trial.suggest_int('batch_size', 5, 7)
-            sigma =  0.1 #trial.suggest_discrete_uniform('sigma', 0.1, 1.0, 0.05) if perturbation in [1, 4] else 0.1
+            hidden_layers_a = 5 if l_lim else None
+            hidden_layers_c = 5 if l_lim else None
+            lr_a = 10 ** -3
+            lr_c = 10 ** -3
+            tau = 5 * 10 ** -3
+            batch_size = 100
+            sigma =  0.1 if perturbation in [1, 4] else 0.1
 
-        random_seed = 2 #trial.suggest_int('random_seed', 0, 9) if fix_seed else None
-        rescale = 10 ** 0 #trial.suggest_discrete_uniform('rescale', -2, 0, 0.5)
-        epsilon = 1 #trial.suggest_discrete_uniform('epsilon', 1.0, 1.0, 0.1) if perturbation in [0, 1] else 1
-        EXPLORE = 10 ** 6 #trial.suggest_discrete_uniform('EXPLORE', 6, 8, 0.5) if perturbation in [0, 1] else 1
-        theta = 0 #trial.suggest_discrete_uniform('theta', 0.1, 0.9, 0.05) if perturbation in [1, 4] else 
+        random_seed = 2 if fix_seed else None
+        epsilon = 1 if perturbation in [0, 1] else 1
+        EXPLORE = 10 ** 6 if perturbation in [0, 1] else 1
+        theta = 0 if perturbation in [1, 4] else 0
         sigma_init = 0.017 if perturbation == 3 else None
-        nb_rollout_steps = 1 #int(2 ** trial.suggest_discrete_uniform('nb_rollout_steps', 8, 10, 1)) if perturbation in [3, 4] else 
+        nb_rollout_steps = 1 if perturbation in [3, 4] else 1
 
     #-------------------------------
     # Hyperparameter future work
@@ -269,17 +269,31 @@ def objective():
                 bytes_received = c.recv(4000)
                 array_received = np.frombuffer(bytes_received, dtype=np.float32)
 
+                #-------------------------------
+                # Predict acition (A part of In the middle of a episode, 1/2)
+                #-------------------------------
+                next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
+                next_reward = array_received[-2]
+                done = array_received[-1]
+                sum_reward += next_reward
+                
+                # next_action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
+                next_action = agent.action_predict(next_state, epsilon, phase='learning')
+                next_action = agent.action_normalized(next_action)
+
+                #-------------------------------    
+                # Send Action to Unity
+                #------------------------------- 
+                nn_output = np.array(next_action, dtype = 'float')
+                #nn_output = np.array([action], dtype = 'float')
+                bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
+                c.sendall(bytes_to_send)
+                c.close()
+
                 if num_step:
                     #-------------------------------
                     # In the middle of a episode, 2/2
-                    #-------------------------------
-                    next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-                    next_reward = array_received[-2]
-                    done = array_received[-1]
-                    action = agent.action_normalized(action)
-                    sum_reward += next_reward
-                    next_reward = rescale * next_reward
-                    
+                    #-------------------------------                   
                     if PER:
                         action_pred = agent.actor_network.predict(next_state.reshape(1, -1))
                         next_target = agent.target_critic_network.predict([next_state.reshape(1, -1), action_pred])
@@ -317,7 +331,7 @@ def objective():
                     #------------------------------- 
                     # next_state, done = env.reset(), False
                     next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-                    # next_reward = array_received[-2]
+                    next_reward = array_received[-2]
                     done = array_received[-1]
 
                 if done == 9: # achieve the goal
@@ -337,8 +351,7 @@ def objective():
                     num_step += 1
                     num_total_step += 1
                     state = next_state
-                    action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
-                    # action = agent.action_predict(state, epsilon, phase='learning')
+                    action = next_action                   
                     # if epsilon > 0 and perturbation in [0, 1]: epsilon -= 1.0 / EXPLORE
 
                     if num_memory % 1000 == 0:
@@ -348,14 +361,6 @@ def objective():
                             .format(num_memory * 10 // min_memory_size, str(elapsed_time)[:-7])
                             )
 
-                #-------------------------------    
-                # Send Action to Unity
-                #------------------------------- 
-                nn_output = np.array(action, dtype = 'float')
-                #nn_output = np.array([action], dtype = 'float')
-                bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
-                c.sendall(bytes_to_send)
-                c.close()
 
         #-------------------------------
         # Start learning
@@ -374,17 +379,33 @@ def objective():
             bytes_received = c.recv(4000)
             array_received = np.frombuffer(bytes_received, dtype=np.float32)
 
+            #-------------------------------
+            # Predict acition (A part of In the middle of a episode, 1/2)
+            #-------------------------------
+            next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
+            next_reward = array_received[-2]
+            done = array_received[-1]
+            sum_reward += next_reward
+
+            if num_episode % nb_test_episodes == 0:
+                next_action = agent.action_predict(next_state, epsilon, phase='test')
+            else:
+                next_action = agent.action_predict(next_state, epsilon, phase='learning')
+            next_action = agent.action_normalized(next_action)
+                
+            #-------------------------------    
+            # Send Action to Unity
+            #------------------------------- 
+            nn_output = np.array(next_action, dtype = 'float')
+            #nn_output = np.array([action], dtype = 'float')
+            bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
+            c.sendall(bytes_to_send)
+            c.close()
+
             if num_step:
                 #-------------------------------
                 # In the middle of a episode, 2/2
-                #-------------------------------
-                next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-                next_reward = array_received[-2]
-                done = array_received[-1]
-                action = agent.action_normalized(action)
-                sum_reward += next_reward
-                next_reward = rescale * next_reward
-                
+                #-------------------------------                
                 if PER:
                     action_pred = agent.actor_network.predict(next_state.reshape(1, -1))                   
                     next_target = agent.target_critic_network.predict([next_state.reshape(1, -1), action_pred])
@@ -422,7 +443,7 @@ def objective():
                 #-------------------------------
                 # next_state, done = env.reset(), False
                 next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-                # next_reward = array_received[-2]
+                next_reward = array_received[-2]
                 done = array_received[-1]
 
             #-------------------------------
@@ -598,25 +619,16 @@ def objective():
                 num_step += 1
                 if num_episode % nb_test_episodes != 0: num_total_step += 1
                 state = next_state
+                action = next_action
                 if num_episode % nb_test_episodes == 0:
-                    action = agent.action_predict(state, epsilon, phase='test')
+                    pass
                 else:
-                    action = agent.action_predict(state, epsilon, phase='learning')
                     if epsilon > 0 and perturbation in [0, 1]:
                         epsilon -= 1.0 / EXPLORE
                         if num_total_step % 100 == 0 and perturbation in [0, 1]:
                             logger.log(logs={"3 Noise/1 Action Space Noise": agent.action_space_noise[0][0],
                                                 "3 Noise/9 epsilon": epsilon}, 
                                         epoch=num_total_step)
-                
-            #-------------------------------    
-            # Send Action to Unity
-            #------------------------------- 
-            nn_output = np.array(action, dtype = 'float')
-            #nn_output = np.array([action], dtype = 'float')
-            bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
-            c.sendall(bytes_to_send)
-            c.close()
 
 
     except KeyboardInterrupt:

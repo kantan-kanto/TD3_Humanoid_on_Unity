@@ -72,7 +72,7 @@ class DDPG():
         self.theta = theta
         self.sigma_init = sigma_init
         self.sigma = sigma
-        self.dt = 0.0165 / 4. # bullet3/examples/pybullet/gym/pybullet_envs/gym_locomotion_envs.py
+        self.dt = 0.03 #0.0165 / 4. from bullet3/examples/pybullet/gym/pybullet_envs/gym_locomotion_envs.py
         self.ou_noise = None
         self.paramas_noise_sigma = 1.0
         self.prev_weights_dict = {}
