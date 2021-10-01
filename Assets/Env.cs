@@ -64,12 +64,13 @@ public class Env : MonoBehaviour
     float step;
 
 
-    float[] output_data = new float[dim_states+2]; // 34 = more8 + j22 + feet_contact2 + reward + done
+    float[] output_data = new float[dim_states+3]; // 35 = more8 + j22 + feet_contact2 + reward + done + save_flag
 
     public bool stop_flag;
-    public int countdown = 100000;
+    public int countdown = 30000;
     public string ip = "127.0.0.1";
     public int port = 60000;
+    public bool save_flag;
     private Socket client;
     [SerializeField]
     private float[] dataOut, dataIn;
@@ -406,6 +407,7 @@ public class Env : MonoBehaviour
         // other
         output_data[dim_states+0] = reward;
         output_data[dim_states+1] = done;
+        output_data[dim_states+2] = Convert.ToInt32(save_flag);        
     }
 
     void CalcReward(float[] a)
@@ -427,8 +429,8 @@ public class Env : MonoBehaviour
         for(int i = 0; i < num_joints; i++)
         {
             // electricity cost
-            electricity_cost += 2.0f * Math.Abs(a[i] * joint_velocity[i] / 600f) / num_joints;
-            electricity_cost += 0.1f * (float)Math.Pow(a[i], 2) / num_joints;
+            electricity_cost += 2.0f * 4.25f * Math.Abs(a[i] * joint_velocity[i] / 600f) / num_joints;
+            electricity_cost += 0.1f * 4.25f * (float)Math.Pow(a[i], 2) / num_joints;
 
             // joints at limit cost
             float center = (max_limit[i] + min_limit[i]) / 2f;

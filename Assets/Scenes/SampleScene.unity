@@ -4850,9 +4850,10 @@ MonoBehaviour:
   Target: {fileID: 518396079}
   Floor: {fileID: 1779337144}
   stop_flag: 0
-  countdown: 100000
+  countdown: 30000
   ip: 127.0.0.1
   port: 60000
+  save_flag: 0
   dataOut: []
   dataIn: []
 --- !u!1 &2022373691

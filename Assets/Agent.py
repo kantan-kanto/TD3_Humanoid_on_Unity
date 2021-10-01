@@ -18,11 +18,11 @@ import socket, struct
 model = 'TD3'
 env_id = 'Humanoid_on_Unity'
 study_name = '00'
-n_trials = 5
+n_trials = 1
 step = None # To pickle memory
 
 
-def objective():
+def objective(trial):
     #-------------------------------
     # Socket
     #-------------------------------   
@@ -45,36 +45,35 @@ def objective():
     #-------------------------------
     # Environment Setting
     #-------------------------------   
-    run_id = datetime.now().strftime('%Y%m%d%H%M%S-%f') 
+    run_id = trial.trial_id
     save = False
-    R_note = 1000
+    R_note = 10
     load = False
-
 
     dim_states = 32 #env.observation_space.shape[0]
     dim_actions = 11 #env.action_space.shape[0]
     range_action_high = np.ones(dim_actions) #env.action_space.high
-    range_action_low = - np.ones(dim_actions) 
+    range_action_low = - np.ones(dim_actions) #env.action_space.low
     range_action_range = (range_action_high - range_action_low) / 2.
     range_action_mean = (range_action_high + range_action_low) / 2.
 
     if env_id == 'Humanoid_on_Unity':
         log_interval = 1
         target_criteria = 'sma' #'max'
-        target_episode_start = 0
-        target_episode_end = 30000 #30000
+        # target_episode_start = 0
+        # target_episode_end = 30000 #30000
 
-        stage0_episode_start = 15000
-        stage1_episode_start = 20000
-        stage2_episode_start = 25000
+        # stage0_episode_start = 15000
+        # stage1_episode_start = 20000
+        # stage2_episode_start = 25000
 
-        stage0_sma_interval = 10000
-        stage1_sma_interval = 10000
-        stage2_sma_interval = 10000
+        # stage0_sma_interval = 10000
+        # stage1_sma_interval = 10000
+        # stage2_sma_interval = 10000
 
-        stage0_reward_threshold = 200
-        stage1_reward_threshold = 400
-        stage2_reward_threshold = 1000
+        # stage0_reward_threshold = 200
+        # stage1_reward_threshold = 400
+        # stage2_reward_threshold = 1000
 
     #-------------------------------
     # Hyperparameter to be searched
@@ -85,10 +84,12 @@ def objective():
     perturbation_dict = {'gaussian': 0, 'ou': 1, 'layer_normalization': 2, 'noisy_dense' : 3, 'ou_noisy_dense' : 4}
 
     if len(study_name) == 2:
-        perturbation = 0 #perturbation_dict['noisy_dense']
+        perturbation = 0 #perturbation_dict['gaussian']
         PER = False
         TD3 = True
         l_lim = True
+        L2_reg = False
+        BN = False
         fix_seed = True
 
         if TD3:
@@ -98,26 +99,86 @@ def objective():
             lr_c = 10 ** -3
             tau = 5 * 10 ** -3
             batch_size = 100
-            sigma =  0.1 if perturbation in [1, 4] else 0.1
+            sigma =  trial.suggest_discrete_uniform('sigma', 0.1, 1.0, 0.05) if perturbation in [1, 4] else 0.1
+        else:
+            hidden_layers_a = trial.suggest_int('hidden_layers_a', 1, 6) if l_lim else None
+            hidden_layers_c = trial.suggest_int('hidden_layers_c', 5, 6) if l_lim else None
+            lr_a = 10 ** trial.suggest_discrete_uniform('lr_a', -4.5, -3, 0.5)
+            lr_c = lr_a * 10 ** trial.suggest_discrete_uniform('lr_c_mult', 0, 0.5, 0.5)
+            tau = 10 ** -3
+            batch_size = 2 ** trial.suggest_int('batch_size', 5, 7)
+            sigma = trial.suggest_discrete_uniform('sigma', 0.1, 1.0, 0.05) if perturbation == [0, 1, 4] else 1
 
-        random_seed = 2 if fix_seed else None
-        epsilon = 1 if perturbation in [0, 1] else 1
-        EXPLORE = 10 ** 6 if perturbation in [0, 1] else 1
-        theta = 0 if perturbation in [1, 4] else 0
+        random_seed = trial.suggest_int('random_seed', 0, 9) if fix_seed else None
+        epsilon = 1
+        EXPLORE = 10 ** trial.suggest_discrete_uniform('EXPLORE', 6, 8, 0.5) if perturbation in [0, 1] else 1
+        theta = trial.suggest_discrete_uniform('theta', 0.1, 0.9, 0.05) if perturbation in [1, 4] else 0
         sigma_init = 0.017 if perturbation == 3 else None
-        nb_rollout_steps = 1 if perturbation in [3, 4] else 1
+        nb_rollout_steps = int(2 ** trial.suggest_discrete_uniform('nb_rollout_steps', 8, 10, 1)) if perturbation in [3, 4] else 1
+    else:
+        perturbation = 0 #perturbation_dict['gaussian']
+        PER = False
+        TD3 = True
+        l_lim = True
+        L2_reg = False
+        BN = False
+        fix_seed = True
+
+        con = sql.connect('./db/'+model+'-'+env_id+'-'+study_name[0:2]+'.db')
+        df_trial_params = pd.read_sql("select trial_id, param_name, param_value from trial_params", con)
+        df_trial_params = df_trial_params.pivot(index='trial_id', columns='param_name', values='param_value')
+        load_id = int(study_name[3:])
+
+        if TD3:
+            hidden_layers_a = 5 if l_lim else None
+            hidden_layers_c = 5 if l_lim else None
+            lr_a = 10 ** -3
+            lr_c = 10 ** -3
+            tau = 5 * 10 ** -3
+            batch_size = 100
+            sigma =  df_trial_params.at[load_id, 'sigma'] if perturbation in [1, 4] else 0.1
+        else:
+            random_seed = int(df_trial_params.at[load_id, 'random_seed']) if fix_seed else None
+            hidden_layers_a = int(df_trial_params.at[load_id, 'hidden_layers_a']) if l_lim else None
+            hidden_layers_c = int(df_trial_params.at[load_id, 'hidden_layers_c']) if l_lim else None
+            lr_a = 10 ** df_trial_params.at[load_id, 'lr_a']
+            lr_c = lr_a * 10 ** df_trial_params.at[load_id, 'lr_c_mult']
+            tau = 10 ** -3
+            batch_size = 2 ** int(df_trial_params.at[load_id, 'batch_size'])
+            sigma = df_trial_params.at[load_id, 'sigma'] if perturbation == [0, 1, 4] else 1
+
+        random_seed = random_seed = int(df_trial_params.at[load_id, 'random_seed']) if fix_seed else None
+        epsilon = 1
+        EXPLORE = 10 ** df_trial_params.at[load_id, 'EXPLORE'] if perturbation in [0, 1, 2, 4] else 0
+        theta = df_trial_params.at[load_id, 'theta'] if perturbation in [1, 4] else 0
+        sigma_init = 0.017 if perturbation == 3 else None
+        nb_rollout_steps = int(2 ** df_trial_params.at[load_id, 'nb_rollout_steps']) if perturbation in [3, 4] else 1
 
     #-------------------------------
     # Hyperparameter future work
     #-------------------------------
     if True:
         prefill_buffer = True
+        
+        if l_lim == False:
+            hl_a_base = trial.suggest_int('hl_a_base', 0, 13)
+            hl_a_mult = trial.suggest_int('hl_a_mult', 0, 10)
+            hl_a_num = 3
+            hidden_layers_a = [hl_a_base, hl_a_mult, hl_a_num]
 
-        l2_reg_a = 0 # NOT NONE!
-        l2_reg_c = 0 # NOT NONE!
+            hl_c_base = trial.suggest_int('hl_c_base', 0, 13)
+            hl_c_mult = trial.suggest_int('hl_c_mult', 0, 10)
+            hl_c_num = 3
+            hidden_layers_c = [hl_c_base, hl_c_mult, hl_c_num]
 
-        BN_a = 16
-        BN_c = 16 
+        if L2_reg:
+            l2_reg_a = trial.suggest_discrete_uniform('l2_reg_a',-6, 0, 2)
+            l2_reg_c = trial.suggest_discrete_uniform('l2_reg_c',-6, 0, 2)
+            l2_reg_a = 10 ** l2_reg_a if l2_reg_a <= -1 else 0 # NOT NONE!
+            l2_reg_c = 10 ** l2_reg_c if l2_reg_c <= -1 else 0 # NOT NONE!
+        else:
+            l2_reg_a = 0 # NOT NONE!
+            l2_reg_c = 0 # NOT NONE!
 
         if PER:
             PER_mode = 2 #trial.suggest_int('PER_mode', 1, 3)
@@ -128,8 +189,15 @@ def objective():
 
             per_a = trial.suggest_discrete_uniform('per_a', 0, 1, 0.2)
             per_b_init = trial.suggest_discrete_uniform('per_b', 0, 1, 0.2)
-            per_b_grad = (1.0 - per_b_init) / target_episode_end if PER_anneal else 0
+            per_b_grad = (1.0 - per_b_init) / EXPLORE if PER_anneal else 0
             per_e = 10 ** trial.suggest_discrete_uniform('per_e', -3, -1, 1)
+
+        if BN:
+            BN_a = trial.suggest_int('BN_a', 17, 31)
+            BN_c = trial.suggest_int('BN_c', 17, 31) 
+        else:
+            BN_a = 16
+            BN_c = 16
 
         if fix_seed:
             #-------------------------------
@@ -176,9 +244,9 @@ def objective():
 
     sum_reward = 0
 
-    R_s0 = np.nan
-    R_s1 = np.nan
-    R_s2 = np.nan
+    # R_s0 = np.nan
+    # R_s1 = np.nan
+    # R_s2 = np.nan
 
     td_loss = 0
     nabla_J = 0
@@ -186,9 +254,9 @@ def objective():
     list_R_log = []
     list_R_all = []
     
-    list_R_s0 = deque([], maxlen=stage0_sma_interval)
-    list_R_s1 = deque([], maxlen=stage1_sma_interval)
-    list_R_s2 = deque([], maxlen=stage2_sma_interval)
+    # list_R_s0 = deque([], maxlen=stage0_sma_interval)
+    # list_R_s1 = deque([], maxlen=stage1_sma_interval)
+    # list_R_s2 = deque([], maxlen=stage2_sma_interval)
 
     memory = SumTree(max_memory_size) if PER else deque([], maxlen=max_memory_size)
     num_memory = memory.len if PER else len(memory)
@@ -262,19 +330,21 @@ def objective():
         # Fill buffer up to min_memory_size
         #-------------------------------
         while (num_memory < min_memory_size and prefill_buffer and load == False):
-                #-------------------------------
-                # Receive states from Unity
-                #------------------------------- 
-                c, addr = s.accept()
-                bytes_received = c.recv(4000)
-                array_received = np.frombuffer(bytes_received, dtype=np.float32)
+            #-------------------------------
+            # Receive states from Unity
+            #------------------------------- 
+            c, addr = s.accept()
+            bytes_received = c.recv(4000)
+            array_received = np.frombuffer(bytes_received, dtype=np.float32)
 
+            if num_step:
                 #-------------------------------
-                # Predict acition (A part of In the middle of a episode, 1/2)
+                # In the middle of a episode, 1/2
                 #-------------------------------
-                next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-                next_reward = array_received[-2]
-                done = array_received[-1]
+                next_state = np.clip(array_received[:dim_states], -5, 5) # clip from -5  to 5 
+                next_reward = array_received[dim_states+0]
+                done = array_received[dim_states+1]
+                save = array_received[dim_states+2]
                 sum_reward += next_reward
                 
                 # next_action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
@@ -289,89 +359,98 @@ def objective():
                 bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
                 c.sendall(bytes_to_send)
                 c.close()
+            else:
+                #-------------------------------
+                # Start a episode
+                #------------------------------- 
+                # next_state, done = env.reset(), False
+                next_state = np.clip(array_received[:dim_states], -5, 5) # clip from -5  to 5 
+                next_reward = array_received[dim_states+0]
+                done = array_received[dim_states+1]
+                save = array_received[dim_states+2]
 
-                if num_step:
-                    #-------------------------------
-                    # In the middle of a episode, 2/2
-                    #-------------------------------                   
-                    if PER:
-                        action_pred = agent.actor_network.predict(next_state.reshape(1, -1))
-                        next_target = agent.target_critic_network.predict([next_state.reshape(1, -1), action_pred])
-                        if TD3:
-                            next_target_2 = agent.target_critic_2_network.predict([next_state.reshape(1, -1), action_pred])
-                            next_target = np.minimum(next_target, next_target_2)
-                        next_target = next_reward + agent.gamma * next_target * (1 - done)
-                        target = agent.critic_network.predict([state.reshape(1, -1), action.reshape(1, -1)])
-                        td_error = np.abs(next_target - target) + per_e
-                        priority = np.power(td_error, per_a)[0][0]
-                        memory.add(
-                            priority, 
-                            Step(
-                                state=state,
-                                action=action,
-                                next_reward=next_reward,
-                                next_state=next_state,
-                                done=done)
-                            )
-                    else:
-                        memory.append((
-                            None,
-                            None,
-                            step(
-                                state=state,
-                                action=action,
-                                next_reward=next_reward,
-                                next_state=next_state,
-                                done=done)
-                            ))
-                    num_memory = memory.len if PER else len(memory)
-                else:
-                    #-------------------------------
-                    # Start a episode
-                    #------------------------------- 
-                    # next_state, done = env.reset(), False
-                    next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-                    next_reward = array_received[-2]
-                    done = array_received[-1]
+                # next_action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
+                next_action = agent.action_predict(next_state, epsilon, phase='learning')
+                next_action = agent.action_normalized(next_action)
 
-                if done == 9: # achieve the goal
-                    print("learning completed ")
-                    c.close()
-                    sys.exit()
-                elif done == 1:
-                    #-------------------------------
-                    # End a step
-                    #------------------------------- 
-                    sum_reward = 0
-                    num_step = 0
-                elif done == 0: # Episode on going
-                    #-------------------------------
-                    # In the middle of a episode, 1/2
-                    #-------------------------------
-                    num_step += 1
-                    num_total_step += 1
-                    state = next_state
-                    action = next_action                   
-                    # if epsilon > 0 and perturbation in [0, 1]: epsilon -= 1.0 / EXPLORE
+                #-------------------------------    
+                # Send Action to Unity
+                #------------------------------- 
+                nn_output = np.array(next_action, dtype = 'float')
+                #nn_output = np.array([action], dtype = 'float')
+                bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
+                c.sendall(bytes_to_send)
+                c.close()
 
-                    if num_memory % 1000 == 0:
-                        elapsed_time = (datetime.now() - start_time)
-                        print(
-                            "Filling memory buffer... {:>2d}/10  time:{}"
-                            .format(num_memory * 10 // min_memory_size, str(elapsed_time)[:-7])
-                            )
+                num_step += 1
+                num_total_step += 1
+                state = next_state
+                action = next_action  
+                continue
 
+            #-------------------------------
+            # In the middle of a episode, 2/2
+            #-------------------------------                   
+            if PER:
+                action_pred = agent.actor_network.predict(next_state.reshape(1, -1))
+                next_target = agent.target_critic_network.predict([next_state.reshape(1, -1), action_pred])
+                if TD3:
+                    next_target_2 = agent.target_critic_2_network.predict([next_state.reshape(1, -1), action_pred])
+                    next_target = np.minimum(next_target, next_target_2)
+                next_target = next_reward + agent.gamma * next_target * (1 - done)
+                target = agent.critic_network.predict([state.reshape(1, -1), action.reshape(1, -1)])
+                td_error = np.abs(next_target - target) + per_e
+                priority = np.power(td_error, per_a)[0][0]
+                memory.add(
+                    priority, 
+                    Step(
+                        state=state,
+                        action=action,
+                        next_reward=next_reward,
+                        next_state=next_state,
+                        done=done)
+                    )
+            else:
+                memory.append((
+                    None,
+                    None,
+                    step(
+                        state=state,
+                        action=action,
+                        next_reward=next_reward,
+                        next_state=next_state,
+                        done=done)
+                    ))
+            num_memory = memory.len if PER else len(memory)
+
+            #-------------------------------
+            # Judge whether to proceed to the next step
+            #------------------------------- 
+            if done == 9: # achieve the goal
+                print("learning completed ")
+                c.close()
+                sys.exit()
+            elif done == 1:
+                sum_reward = 0
+                num_step = 0
+            elif done == 0: # Episode on going
+                num_step += 1
+                num_total_step += 1
+                state = next_state
+                action = next_action                   
+                # if epsilon > 0 and perturbation in [0, 1]: epsilon -= 1.0 / EXPLORE
+
+                if num_memory % 1000 == 0:
+                    elapsed_time = (datetime.now() - start_time)
+                    print(
+                        "Filling memory buffer... {:>2d}/10  time:{}"
+                        .format(num_memory * 10 // min_memory_size, str(elapsed_time)[:-7])
+                        )
 
         #-------------------------------
         # Start learning
         #-------------------------------    
-        while (
-                math.isnan(nabla_J) == False and
-                (num_episode <= stage0_episode_start or math.isnan(R_s0) or R_s0 > stage0_reward_threshold) and
-                (num_episode <= stage1_episode_start or math.isnan(R_s1) or R_s1 > stage1_reward_threshold) and
-                (num_episode <= stage2_episode_start or math.isnan(R_s2) or R_s2 > stage2_reward_threshold) and
-                num_episode <= target_episode_end
-                ):
+        while (math.isnan(nabla_J) == False):
             #-------------------------------
             # Receive states from Unity
             #-------------------------------             
@@ -379,72 +458,95 @@ def objective():
             bytes_received = c.recv(4000)
             array_received = np.frombuffer(bytes_received, dtype=np.float32)
 
-            #-------------------------------
-            # Predict acition (A part of In the middle of a episode, 1/2)
-            #-------------------------------
-            next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-            next_reward = array_received[-2]
-            done = array_received[-1]
-            sum_reward += next_reward
-
-            if num_episode % nb_test_episodes == 0:
-                next_action = agent.action_predict(next_state, epsilon, phase='test')
-            else:
-                next_action = agent.action_predict(next_state, epsilon, phase='learning')
-            next_action = agent.action_normalized(next_action)
-                
-            #-------------------------------    
-            # Send Action to Unity
-            #------------------------------- 
-            nn_output = np.array(next_action, dtype = 'float')
-            #nn_output = np.array([action], dtype = 'float')
-            bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
-            c.sendall(bytes_to_send)
-            c.close()
-
-            if num_step:
+            if num_step:                
                 #-------------------------------
-                # In the middle of a episode, 2/2
-                #-------------------------------                
-                if PER:
-                    action_pred = agent.actor_network.predict(next_state.reshape(1, -1))                   
-                    next_target = agent.target_critic_network.predict([next_state.reshape(1, -1), action_pred])
-                    if TD3:
-                        next_target_2 = agent.target_critic_2_network.predict([next_state.reshape(1, -1), action_pred])
-                        next_target = np.minimum(next_target, next_target_2)
-                    next_target = next_reward + agent.gamma * next_target * (1 - done)
-                    target = agent.critic_network.predict([state.reshape(1, -1), action.reshape(1, -1)])
-                    td_error = np.abs(next_target - target) + per_e
-                    priority = np.power(td_error, per_a)[0][0]
-                    memory.add(
-                        priority, 
-                        Step(
-                            state=state,
-                            action=action,
-                            next_reward=next_reward,
-                            next_state=next_state,
-                            done=done)
-                        )
+                # In the middle of a episode, 1/2
+                #-------------------------------
+                next_state = np.clip(array_received[:dim_states], -5, 5) # clip from -5  to 5 
+                next_reward = array_received[dim_states+0]
+                done = array_received[dim_states+1]
+                save = array_received[dim_states+2]
+                sum_reward += next_reward
+
+                if num_episode % nb_test_episodes == 0:
+                    next_action = agent.action_predict(next_state, epsilon, phase='test')
                 else:
-                    memory.append((
-                        None,
-                        None,
-                        step(
-                            state=state,
-                            action=action,
-                            next_reward=next_reward,
-                            next_state=next_state,
-                            done=done)
-                        ))
-                num_memory = memory.len if PER else len(memory)
+                    next_action = agent.action_predict(next_state, epsilon, phase='learning')
+                next_action = agent.action_normalized(next_action)
+
+                #-------------------------------    
+                # Send Action to Unity
+                #------------------------------- 
+                nn_output = np.array(next_action, dtype = 'float')
+                #nn_output = np.array([action], dtype = 'float')
+                bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
+                c.sendall(bytes_to_send)
+                c.close()
             else:
                 #-------------------------------
                 # Start a episode
                 #-------------------------------
                 # next_state, done = env.reset(), False
-                next_state = np.clip(array_received[:-2], -5, 5) # clip from -5  to 5 
-                next_reward = array_received[-2]
-                done = array_received[-1]
+                next_state = np.clip(array_received[:dim_states], -5, 5) # clip from -5  to 5 
+                next_reward = array_received[dim_states+0]
+                done = array_received[dim_states+1]
+                save = array_received[dim_states+2]
+
+                if num_episode % nb_test_episodes == 0:
+                    next_action = agent.action_predict(next_state, epsilon, phase='test')
+                else:
+                    next_action = agent.action_predict(next_state, epsilon, phase='learning')
+                next_action = agent.action_normalized(next_action)
+
+                #-------------------------------    
+                # Send Action to Unity
+                #------------------------------- 
+                nn_output = np.array(next_action, dtype = 'float')
+                #nn_output = np.array([action], dtype = 'float')
+                bytes_to_send = struct.pack('%sf' % len(nn_output), *nn_output)
+                c.sendall(bytes_to_send)
+                c.close()
+
+                num_step += 1
+                num_total_step += 1
+                state = next_state
+                action = next_action  
+                continue
+
+            #-------------------------------
+            # In the middle of a episode, 2/2
+            #-------------------------------                
+            if PER:
+                action_pred = agent.actor_network.predict(next_state.reshape(1, -1))                   
+                next_target = agent.target_critic_network.predict([next_state.reshape(1, -1), action_pred])
+                if TD3:
+                    next_target_2 = agent.target_critic_2_network.predict([next_state.reshape(1, -1), action_pred])
+                    next_target = np.minimum(next_target, next_target_2)
+                next_target = next_reward + agent.gamma * next_target * (1 - done)
+                target = agent.critic_network.predict([state.reshape(1, -1), action.reshape(1, -1)])
+                td_error = np.abs(next_target - target) + per_e
+                priority = np.power(td_error, per_a)[0][0]
+                memory.add(
+                    priority, 
+                    Step(
+                        state=state,
+                        action=action,
+                        next_reward=next_reward,
+                        next_state=next_state,
+                        done=done)
+                    )
+            else:
+                memory.append((
+                    None,
+                    None,
+                    step(
+                        state=state,
+                        action=action,
+                        next_reward=next_reward,
+                        next_state=next_state,
+                        done=done)
+                    ))
+            num_memory = memory.len if PER else len(memory)
 
             #-------------------------------
             # Train
@@ -483,7 +585,7 @@ def objective():
             next_targets = next_rewards + agent.gamma * next_targets * (1 - dones)
 
             if PER:
-                per_b = per_b_init + num_episode * per_b_grad
+                per_b = max(per_b_init + num_total_step * per_b_grad, 1)
                 probabilities = priorities / memory.total()
                 weights = 1 / np.power(num_memory * probabilities, per_b) if PER_weights else np.ones_like(next_targets)
                 max_weight = np.max(weights) if PER_max else 1
@@ -529,14 +631,14 @@ def objective():
                                  "3 Noise/9 epsilon": epsilon},
                            epoch=num_total_step)
 
+            #-------------------------------
+            # Judge whether to proceed to the next step
+            #------------------------------- 
             if done == 9: # achieve the goal
                 print("learning completed ")
                 c.close()
                 sys.exit()
             elif done == 1:
-                #-------------------------------
-                # End a episode
-                #------------------------------- 
                 list_R_log.append(sum_reward)
                 list_R_all.append(sum_reward)
                 
@@ -544,10 +646,10 @@ def objective():
                     if perturbation in [3, 4]:
                         # for resume learning
                         agent.parameter_noise_update(states, target_sigma=None, phase='resume')
-                else:
-                    list_R_s0.append(sum_reward)
-                    list_R_s1.append(sum_reward)
-                    list_R_s2.append(sum_reward)
+                # else:
+                #     list_R_s0.append(sum_reward)
+                #     list_R_s1.append(sum_reward)
+                #     list_R_s2.append(sum_reward)
                 
                 #-------------------------------
                 # log
@@ -564,9 +666,9 @@ def objective():
                         )
                 elif num_episode % log_interval == 0:
                   
-                    R_s0 = max(list_R_s0) #sum(list_R_s0)/len(list_R_s0)
-                    R_s1 = max(list_R_s1) #sum(list_R_s1)/len(list_R_s1)
-                    R_s2 = max(list_R_s2) 
+                    # R_s0 = max(list_R_s0) #sum(list_R_s0)/len(list_R_s0)
+                    # R_s1 = max(list_R_s1) #sum(list_R_s1)/len(list_R_s1)
+                    # R_s2 = max(list_R_s2) 
 
                     output_lr = {
                         "1 Loss/1 TD loss": td_loss,
@@ -582,7 +684,7 @@ def objective():
                         .format(num_episode, R_avg, nabla_J, str(elapsed_time)[:-7])
                         )
 
-                    if (R_note < R_avg) and (save): 
+                    if (R_note < R_avg) and save: 
                         R_note = R_avg
                         os.makedirs(("./result/{}/{}_{}").format(env_id, study_name, run_id), exist_ok=True)
                         agent.actor_network_model.save(("./result/{}/{}_{}/{}_actor_model.h5").format(env_id, study_name, run_id, model))
@@ -613,9 +715,6 @@ def objective():
                     # for starting test phase
                     agent.parameter_noise_update(states, target_sigma=None, phase='test')
             elif done == 0: # Episode on going
-                #-------------------------------
-                # In the middle of a episode, 1/2
-                #-------------------------------
                 num_step += 1
                 if num_episode % nb_test_episodes != 0: num_total_step += 1
                 state = next_state
@@ -644,14 +743,25 @@ def objective():
         # Wrap up
         #-------------------------------
         # env.close()
-        print("R_s0: {:>4.3f}   R_s1: {:>4.3f}   R_s2: {:>4.3f}".format(R_s0, R_s1, R_s2))
-        
-        target_sma_interval = {'max': 1, 'sma': 100, 'avg': target_episode_end - target_episode_start}.setdefault(target_criteria, 1)
-        target_episode_start = min(target_episode_start, len(list_R_all) - 1)
-        interval = np.ones(min(target_sma_interval, len(list_R_all[target_episode_start:])))
-        interval /= len(interval)
-        R_target = np.max(np.convolve(list_R_all[target_episode_start:], interval, mode='valid'))
-        return R_target
+        # print("R_s0: {:>4.3f}   R_s1: {:>4.3f}   R_s2: {:>4.3f}".format(R_s0, R_s1, R_s2))
+        # target_sma_interval = {'max': 1, 'sma': 100, 'avg': target_episode_end - target_episode_start}.setdefault(target_criteria, 1)
+        # target_episode_start = min(target_episode_start, len(list_R_all) - 1)
+        # interval = np.ones(min(target_sma_interval, len(list_R_all[target_episode_start:])))
+        # interval /= len(interval)
+        # R_target = np.max(np.convolve(list_R_all[target_episode_start:], interval, mode='valid'))
+        # return R_target
+                
+        # R_summary = {}
+        # for criteria, sma_interval in {'max': 1, 'sma': 100, 'avg': num_episode}.items():
+        #     interval = np.ones(min(sma_interval, len(list_R_all)))
+        #     interval /= len(interval)
+        #     R_summary[criteria] = np.max(np.convolve(list_R_all, interval, mode='valid'))
+
+        R_summary = {'max' : max(list_R_all), 'avg' : sum(list_R_all) / len(list_R_all)}
+        interval = np.ones(min(100, len(list_R_all))) / min(100, len(list_R_all))
+        R_summary['sma'] = np.max(np.convolve(list_R_all, interval, mode='valid'))
+        print("R_max: {:>4.3f}   R_sma: {:>4.3f}   R_avg: {:>4.3f}".format(R_summary['max'], R_summary['sma'], R_summary['avg']))
+        return R_summary[target_criteria]
 
 
 if __name__ == '__main__':
@@ -666,4 +776,15 @@ if __name__ == '__main__':
     tf.get_logger().setLevel(logging.ERROR)
     # K.set_learning_phase(0) # 0 = test, 1 = train
 
-    objective()
+    study = optuna.create_study(direction='maximize', 
+                                study_name=study_name, 
+                                storage='sqlite:///db/'+model+'-'+env_id+'-'+study_name+'.db', 
+                                load_if_exists=True,
+                                sampler=optuna.samplers.RandomSampler(), #(seed=int(datetime.now().strftime('%d%H%M%S'))),
+                                # sampler=optuna.samplers.CmaEsSampler(),
+                                )
+    study.optimize(objective, 
+                    n_jobs=1, 
+                    n_trials=n_trials,
+                    )
+
