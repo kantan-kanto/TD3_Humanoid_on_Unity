@@ -60,20 +60,6 @@ def objective(trial):
     if env_id == 'Humanoid_on_Unity':
         log_interval = 1
         target_criteria = 'sma' #'max'
-        # target_episode_start = 0
-        # target_episode_end = 30000 #30000
-
-        # stage0_episode_start = 15000
-        # stage1_episode_start = 20000
-        # stage2_episode_start = 25000
-
-        # stage0_sma_interval = 10000
-        # stage1_sma_interval = 10000
-        # stage2_sma_interval = 10000
-
-        # stage0_reward_threshold = 200
-        # stage1_reward_threshold = 400
-        # stage2_reward_threshold = 1000
 
     #-------------------------------
     # Hyperparameter to be searched
@@ -241,22 +227,14 @@ def objective(trial):
     num_episode = 1
     num_step = 0
     num_total_step = 0
-
     sum_reward = 0
-
-    # R_s0 = np.nan
-    # R_s1 = np.nan
-    # R_s2 = np.nan
 
     td_loss = 0
     nabla_J = 0
 
     list_R_log = []
     list_R_all = []
-    
-    # list_R_s0 = deque([], maxlen=stage0_sma_interval)
-    # list_R_s1 = deque([], maxlen=stage1_sma_interval)
-    # list_R_s2 = deque([], maxlen=stage2_sma_interval)
+
 
     memory = SumTree(max_memory_size) if PER else deque([], maxlen=max_memory_size)
     num_memory = memory.len if PER else len(memory)
@@ -347,8 +325,8 @@ def objective(trial):
                 save = array_received[dim_states+2]
                 sum_reward += next_reward
                 
-                # next_action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
-                next_action = agent.action_predict(next_state, epsilon, phase='learning')
+                next_action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
+                # next_action = agent.action_predict(next_state, epsilon, phase='learning')
                 next_action = agent.action_normalized(next_action)
 
                 #-------------------------------    
@@ -369,8 +347,8 @@ def objective(trial):
                 done = array_received[dim_states+1]
                 save = array_received[dim_states+2]
 
-                # next_action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
-                next_action = agent.action_predict(next_state, epsilon, phase='learning')
+                next_action = np.clip(np.random.normal(loc=0.0, scale=1.0, size=dim_actions), -1, 1)
+                # next_action = agent.action_predict(next_state, epsilon, phase='learning')
                 next_action = agent.action_normalized(next_action)
 
                 #-------------------------------    
@@ -646,10 +624,6 @@ def objective(trial):
                     if perturbation in [3, 4]:
                         # for resume learning
                         agent.parameter_noise_update(states, target_sigma=None, phase='resume')
-                # else:
-                #     list_R_s0.append(sum_reward)
-                #     list_R_s1.append(sum_reward)
-                #     list_R_s2.append(sum_reward)
                 
                 #-------------------------------
                 # log
@@ -665,11 +639,6 @@ def objective(trial):
                         .format(num_episode, R_avg, str(elapsed_time)[:-7])
                         )
                 elif num_episode % log_interval == 0:
-                  
-                    # R_s0 = max(list_R_s0) #sum(list_R_s0)/len(list_R_s0)
-                    # R_s1 = max(list_R_s1) #sum(list_R_s1)/len(list_R_s1)
-                    # R_s2 = max(list_R_s2) 
-
                     output_lr = {
                         "1 Loss/1 TD loss": td_loss,
                         "1 Loss/2 nabla J": nabla_J,
@@ -743,20 +712,6 @@ def objective(trial):
         # Wrap up
         #-------------------------------
         # env.close()
-        # print("R_s0: {:>4.3f}   R_s1: {:>4.3f}   R_s2: {:>4.3f}".format(R_s0, R_s1, R_s2))
-        # target_sma_interval = {'max': 1, 'sma': 100, 'avg': target_episode_end - target_episode_start}.setdefault(target_criteria, 1)
-        # target_episode_start = min(target_episode_start, len(list_R_all) - 1)
-        # interval = np.ones(min(target_sma_interval, len(list_R_all[target_episode_start:])))
-        # interval /= len(interval)
-        # R_target = np.max(np.convolve(list_R_all[target_episode_start:], interval, mode='valid'))
-        # return R_target
-                
-        # R_summary = {}
-        # for criteria, sma_interval in {'max': 1, 'sma': 100, 'avg': num_episode}.items():
-        #     interval = np.ones(min(sma_interval, len(list_R_all)))
-        #     interval /= len(interval)
-        #     R_summary[criteria] = np.max(np.convolve(list_R_all, interval, mode='valid'))
-
         R_summary = {'max' : max(list_R_all), 'avg' : sum(list_R_all) / len(list_R_all)}
         interval = np.ones(min(100, len(list_R_all))) / min(100, len(list_R_all))
         R_summary['sma'] = np.max(np.convolve(list_R_all, interval, mode='valid'))

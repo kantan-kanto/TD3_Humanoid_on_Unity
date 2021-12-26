@@ -23,8 +23,8 @@ public class FloorCol : MonoBehaviour
         {
             // Debug.Log(colList[i]);
             // Debug.Log(String.Format("idx{0}: Object Name={1}", i, colList[i]));
-            if(colList[i] == "right_foot") feet_contact[0] = 1;
-            if(colList[i] == "left_foot") feet_contact[1] = 1;
+            if(colList[i] == "right_shin1") feet_contact[0] = 1;
+            if(colList[i] == "left_shin1") feet_contact[1] = 1;
         }
     }
 }

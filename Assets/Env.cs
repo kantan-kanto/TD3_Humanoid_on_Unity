@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Serialization;
@@ -56,6 +57,7 @@ public class Env : MonoBehaviour
     float[] min_limit = new float[num_joints]   {-45, -75, -35, -120, -160, -120, -160, -85, -90, -85, -90}; 
     float[] max_limit = new float[num_joints]   {45, 30, 35, 20, 2, 20, 2, 60, 50, 60, 50};
     float[] motor_power = new float[num_joints] {100, 100, 100, 300, 200, 300, 200,  75,  75,  75,  75};
+    int[] omitted_game_objects = new int[] {7, 10, 13, 16};
 
     float[] actions = new float[dim_actions];
     float potential_old;
@@ -119,21 +121,24 @@ public class Env : MonoBehaviour
         game_objects[4] = HumanoidModel.transform.Find( "butt" ).gameObject;
         game_objects[5] = HumanoidModel.transform.Find( "right_thigh1" ).gameObject;
         game_objects[6] = HumanoidModel.transform.Find( "right_shin1" ).gameObject;
-        game_objects[7] = game_objects[6].transform.Find( "right_foot" ).gameObject;
+        // game_objects[7] = game_objects[6].transform.Find( "right_foot" ).gameObject;
         game_objects[8] = HumanoidModel.transform.Find( "left_thigh1" ).gameObject;
         game_objects[9] = HumanoidModel.transform.Find( "left_shin1" ).gameObject;
-        game_objects[10] = game_objects[9].transform.Find( "left_foot" ).gameObject;
+        // game_objects[10] = game_objects[9].transform.Find( "left_foot" ).gameObject;
         game_objects[11] = HumanoidModel.transform.Find( "right_uarm1" ).gameObject;
         game_objects[12] = HumanoidModel.transform.Find( "right_larm" ).gameObject;
-        game_objects[13] = HumanoidModel.transform.Find( "right_hand" ).gameObject;
+        // game_objects[13] = HumanoidModel.transform.Find( "right_hand" ).gameObject;
         game_objects[14] = HumanoidModel.transform.Find( "left_uarm1" ).gameObject;
         game_objects[15] = HumanoidModel.transform.Find( "left_larm" ).gameObject;
-        game_objects[16] = HumanoidModel.transform.Find( "left_hand" ).gameObject;
+        // game_objects[16] = HumanoidModel.transform.Find( "left_hand" ).gameObject;
         game_objects[17] = Target;
 
         for (int i = 0; i < num_objects; i++) 
         {
-            rigid_bodies[i] = game_objects[i].GetComponent<Rigidbody>();
+            if (! omitted_game_objects.Contains(i))
+            {
+                rigid_bodies[i] = game_objects[i].GetComponent<Rigidbody>();
+            }
         }
 
         HingeJoint[] Uwaist_Joint = game_objects[2].GetComponents<HingeJoint>();
@@ -250,9 +255,9 @@ public class Env : MonoBehaviour
         }
 
         // HingeJoint General
+        JointLimits[] Limits = new JointLimits[num_joints];
         for (int i = 0; i < num_joints; i++)
         {
-            JointLimits[] Limits = new JointLimits[num_joints];
             Limits[i] = indexed_joints[i].limits;
             Limits[i].min = min_limit[i];
             Limits[i].max = max_limit[i];
@@ -283,18 +288,21 @@ public class Env : MonoBehaviour
     {
         for (int i = 0; i < num_objects; i++) 
         {
-            game_objects_x[i] = game_objects[i].transform.position.x;
-            game_objects_y[i] = game_objects[i].transform.position.y;
-            game_objects_z[i] = game_objects[i].transform.position.z;
-            game_objects_rx[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.x, "degree");
-            game_objects_ry[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.y, "degree");
-            game_objects_rz[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.z, "degree");
-            rigid_bodies_vx[i] = rigid_bodies[i].velocity.x;
-            rigid_bodies_vy[i] = rigid_bodies[i].velocity.y;
-            rigid_bodies_vz[i] = rigid_bodies[i].velocity.z;
-            rigid_bodies_wx[i] = rigid_bodies[i].angularVelocity.x;
-            rigid_bodies_wy[i] = rigid_bodies[i].angularVelocity.y;
-            rigid_bodies_wz[i] = rigid_bodies[i].angularVelocity.z;
+            if (! omitted_game_objects.Contains(i))
+            {
+                game_objects_x[i] = game_objects[i].transform.position.x;
+                game_objects_y[i] = game_objects[i].transform.position.y;
+                game_objects_z[i] = game_objects[i].transform.position.z;
+                game_objects_rx[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.x, "degree");
+                game_objects_ry[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.y, "degree");
+                game_objects_rz[i] = NormalizedAngle(game_objects[i].transform.eulerAngles.z, "degree");
+                rigid_bodies_vx[i] = rigid_bodies[i].velocity.x;
+                rigid_bodies_vy[i] = rigid_bodies[i].velocity.y;
+                rigid_bodies_vz[i] = rigid_bodies[i].velocity.z;
+                rigid_bodies_wx[i] = rigid_bodies[i].angularVelocity.x;
+                rigid_bodies_wy[i] = rigid_bodies[i].angularVelocity.y;
+                rigid_bodies_wz[i] = rigid_bodies[i].angularVelocity.z;
+            }
         }
         for (int i = 0; i < num_joints; i++) 
         {
@@ -350,10 +358,13 @@ public class Env : MonoBehaviour
     {
         for (int i = 0; i < num_objects; i++) 
         {
-            game_objects[i].transform.position = new Vector3(init_game_objects_x[i], init_game_objects_y[i], init_game_objects_z[i]);
-            game_objects[i].transform.eulerAngles = new Vector3(init_game_objects_rx[i], init_game_objects_ry[i], init_game_objects_rz[i]);
-            rigid_bodies[i].velocity = new Vector3(init_rigid_bodies_vx[i], init_rigid_bodies_vy[i], init_rigid_bodies_vz[i]);
-            rigid_bodies[i].angularVelocity = new Vector3(init_rigid_bodies_wx[i], init_rigid_bodies_wy[i], init_rigid_bodies_wz[i]);
+            if (! omitted_game_objects.Contains(i))
+            {
+                game_objects[i].transform.position = new Vector3(init_game_objects_x[i], init_game_objects_y[i], init_game_objects_z[i]);
+                game_objects[i].transform.eulerAngles = new Vector3(init_game_objects_rx[i], init_game_objects_ry[i], init_game_objects_rz[i]);
+                rigid_bodies[i].velocity = new Vector3(init_rigid_bodies_vx[i], init_rigid_bodies_vy[i], init_rigid_bodies_vz[i]);
+                rigid_bodies[i].angularVelocity = new Vector3(init_rigid_bodies_wx[i], init_rigid_bodies_wy[i], init_rigid_bodies_wz[i]);
+            }    
         }
         actions = new float[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         Vector2 init_walk_target = new Vector2(init_game_objects_x[17] - init_game_objects_x[0], init_game_objects_z[17] - init_game_objects_z[0]);
