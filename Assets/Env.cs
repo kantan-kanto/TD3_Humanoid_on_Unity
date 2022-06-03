@@ -13,7 +13,10 @@ public class Env : MonoBehaviour
     public GameObject HumanoidModel;
     public GameObject Target;
     public GameObject Floor;
-    FloorCol script;
+    public GameObject RightFoot;
+    public GameObject LeftFoot;
+    FootCol script_rightfoot;
+    FootCol script_leftfoot;
     
     const int num_objects = 17 + 1; // + Target
     const int num_joints = 11;
@@ -121,10 +124,10 @@ public class Env : MonoBehaviour
         game_objects[4] = HumanoidModel.transform.Find( "butt" ).gameObject;
         game_objects[5] = HumanoidModel.transform.Find( "right_thigh1" ).gameObject;
         game_objects[6] = HumanoidModel.transform.Find( "right_shin1" ).gameObject;
-        // game_objects[7] = game_objects[6].transform.Find( "right_foot" ).gameObject;
+        game_objects[7] = game_objects[6].transform.Find( "right_foot" ).gameObject;
         game_objects[8] = HumanoidModel.transform.Find( "left_thigh1" ).gameObject;
         game_objects[9] = HumanoidModel.transform.Find( "left_shin1" ).gameObject;
-        // game_objects[10] = game_objects[9].transform.Find( "left_foot" ).gameObject;
+        game_objects[10] = game_objects[9].transform.Find( "left_foot" ).gameObject;
         game_objects[11] = HumanoidModel.transform.Find( "right_uarm1" ).gameObject;
         game_objects[12] = HumanoidModel.transform.Find( "right_larm" ).gameObject;
         // game_objects[13] = HumanoidModel.transform.Find( "right_hand" ).gameObject;
@@ -177,7 +180,8 @@ public class Env : MonoBehaviour
         // indexed_joints[15] = LeftUarm1_Joint[1];  //z- -85  60      -85 60
         indexed_joints[10] = LeftLarm_Joint[0];      //x  -50  90  x-1 -90 50
 
-        script = Floor.GetComponent<FloorCol>();
+        script_rightfoot = RightFoot.GetComponent<FootCol>();
+        script_leftfoot = LeftFoot.GetComponent<FootCol>();
 
         StockStates();
 
@@ -410,10 +414,11 @@ public class Env : MonoBehaviour
         }
 
         // feet contact 2
-        output_data[dim_states-2] = script.feet_contact[0];
-        output_data[dim_states-1] = script.feet_contact[1];
-        // Debug.Log(String.Format("Feet Contacts=[{0}, {1}], Ry={2:f}, Ly={3:f}, Step={4}", output_data[dim_states-2], output_data[dim_states-1], game_objects_y[7], game_objects_y[10], step));
-        script.colList.Clear();
+        output_data[dim_states-2] = script_rightfoot.contact[0];
+        output_data[dim_states-1] = script_leftfoot.contact[0];
+        Debug.Log(String.Format("Feet Contacts=[{0}, {1}], Ry={2:f}, Ly={3:f}, Step={4}", output_data[dim_states-2], output_data[dim_states-1], game_objects_y[7], game_objects_y[10], step));
+        script_rightfoot.colList.Clear();
+        script_leftfoot.colList.Clear();
 
         // other
         output_data[dim_states+0] = reward;
@@ -450,6 +455,6 @@ public class Env : MonoBehaviour
             if(normalized_position > 0.99) joints_at_limit_cost += 0.1f * normalized_position;
         }
         reward = alive_bonus + progress - electricity_cost - joints_at_limit_cost;
-        Debug.Log(String.Format("Step;{4}, alive_bonus:{0:f}, progress:{1:f}, electricity_cost:{2:f}, joints_at_limit_cost:{3:f}, torso_y:{5:f}", alive_bonus, progress, electricity_cost, joints_at_limit_cost, step, game_objects_y[0]));
+        // Debug.Log(String.Format("Step;{4}, alive_bonus:{0:f}, progress:{1:f}, electricity_cost:{2:f}, joints_at_limit_cost:{3:f}, torso_y:{5:f}", alive_bonus, progress, electricity_cost, joints_at_limit_cost, step, game_objects_y[0]));
     }
 }
